@@ -18,6 +18,7 @@ import java.util.List;
 public class HttpCore {
     public static final String STATEFULLPAGE_COOKIE_KEY = "ugur";
     private static final String LOG_UNIT = "HttpCore";
+    @Getter
     private static final StringDictionary<HttpCore> activePages = new StringDictionary();
     private static List<HttpCore.UrlMatcher> urlMatchers = new ArrayList();
     private static StringDictionary<HttpCore> statefullPages = new StringDictionary();
@@ -69,9 +70,6 @@ public class HttpCore {
         }
     }
 
-    public static StringDictionary<HttpCore> getActivePages() {
-        return activePages;
-    }
     public static HttpCore getPage(String uri) {
         HttpCore page = (HttpCore) activePages.get(uri);
         if (page == null) {

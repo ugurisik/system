@@ -17,6 +17,9 @@ public class ServerManagment {
     private static final ArrayList<ServerManagment.UpdateEvents> updateEventList = new ArrayList<>();
     protected static ConnectionCore connectionCore;
 
+    public static ConnectionCore getConnectionHandler() {
+        return connectionCore;
+    }
     public static void main(String[] args) {
         System.out.println("Server is running...");
         if (connectionCore == null) {

@@ -14,17 +14,18 @@ public class InteractionMessage implements Serializable {
     @Expose
     @SerializedName("type")
     public Enums.InteractionMessageType type;
-    public String title;
     @Expose
     @SerializedName("title")
-    private String _titleTranslated;
-    public String message;
+    public String title;
     @Expose
     @SerializedName("message")
-    private String _messageTranslated;
+    public String message;
     @Expose
     @SerializedName("ignore")
     public boolean ignore;
+
+    @Expose
+    @SerializedName("buttons")
     public InteractionMessage.InteractionButtonList buttons;
     public boolean translated;
 

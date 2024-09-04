@@ -1,5 +1,6 @@
 package alba.system.server.core;
 
+import alba.system.server.ServerManagment;
 import alba.system.server.utils.Enums;
 import alba.system.server.utils.Logger;
 import alba.system.server.utils.ServerUtility;
@@ -46,6 +47,7 @@ public class ConnectionCore {
     public static Socket _socket;
     private static Pattern _argumentPattern = Pattern.compile("\"([^\"]*)\"|(\\S+)");
     private static Pattern _messageIdPattern = Pattern.compile("MID:([0-9]*)");
+    public static StringDictionary<String> mimeTypes;
     private int _port = 1920;
     private ServerSocket _serverSocket;
     private String _rootFolder = System.getProperty("user.dir");
@@ -63,6 +65,7 @@ public class ConnectionCore {
         try {
             System.out.println("Server is running... on port " + this._port);
             this._serverSocket = new ServerSocket(this._port);
+            this.registerMimes();
         } catch (Exception e) {
             System.out.println("Error2: " + e.getMessage());
             System.exit(1);
@@ -99,6 +102,25 @@ public class ConnectionCore {
         }
 
         return (String[]) result.toArray(new String[result.size()]);
+    }
+
+    private void registerMimes() {
+        if (mimeTypes == null) {
+            mimeTypes = new StringDictionary();
+            try (InputStream inputStream = getClass().getResourceAsStream("/mimetypes.cfg");
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] params = line.split(",");
+                    if (params.length > 1) {
+                        mimeTypes.put(params[0].trim(), params[1].trim());
+                    }
+                }
+            } catch (IOException e) {
+                Logger.Error(e, "Error reading mime types", true);
+            }
+        }
     }
     public static String processMessage(String message) {
         try {
@@ -138,6 +160,17 @@ public class ConnectionCore {
                         }
                     }
 
+                    ServerObject sInput = new ServerObject();
+                    sInput.args = new String[]{action};
+                    sInput.memory = mem;
+                    sInputs.put((String) "ARGS", sInput);
+                    SuResponse response = MapService.call(oMsg.get("cls").getAsString(), action, sInputs);
+                    ServerUtility.clearMemory();
+                    if (response.getForm() == null) {
+                        output = SuResponse.getGSON().toJson(response);
+                    } else {
+                        output = SuResponse.getGSON().toJson(response.getForm());
+                    }
                   /*  ServerObject sInput = new ServerObject();
                     sInput.args = new String[]{action};
                     sInput.memory = mem;
@@ -150,7 +183,7 @@ public class ConnectionCore {
                     } else {
                         output = SuResponse.getGSON().toJson(response.getForm());
                     }*/
-                    output = "E005:INeedSomething!";
+                  //  output = "E005:INeedSomething!";
                 }
             } else {
                 String[] args = _getArgs(message);
@@ -460,7 +493,6 @@ public class ConnectionCore {
             boolean endOfMessage = false;
             int lineCount = 0;
 
-            // Mesajın sonuna kadar oku
             while (!endOfMessage) {
                 try {
                     String nMessage = this._reader.readLine();
@@ -476,22 +508,18 @@ public class ConnectionCore {
                     return;
                 }
 
-                // Çok fazla header kontrolü
                 if (++lineCount > 20) {
                     this.closeConnection("Too many headers.");
                     return;
                 }
             }
 
-            // HTTP mesajını parse et
             HttpMessage httpMessage = this._parseHttp(message);
 
-            // WebSocket isteği olup olmadığını kontrol et
             if (httpMessage.containsHeader("Sec-WebSocket-Key")) {
                 SessionCore sc = SessionCore.getCurrentContext();
                 StringDictionary<String> cookies = new StringDictionary<>();
 
-                // Cookie başlıklarını al
                 for (Header header : httpMessage.getHeaders("Cookie")) {
                     for (HeaderElement element : header.getElements()) {
                         if (element.getParameters().length > 0) {
@@ -504,21 +532,18 @@ public class ConnectionCore {
                     }
                 }
 
-                // ARKS Cookie kontrolü
-                if (cookies.containsKey("ARKS")) {
-                    SessionCore changedContext = SessionCore.change(cookies.get("ARKS"));
+                if (cookies.containsKey("ALBAN")) {
+                    SessionCore changedContext = SessionCore.change(cookies.get("ALBAN"));
                     if (changedContext == null) {
                         this.closeConnection("Cannot change session context for session id: " + cookies.get("ARKS"));
                         return;
                     }
                 }
 
-                // ARKL Cookie kontrolü
-                if (cookies.containsKey("ALBAN")) {
+                if (cookies.containsKey("ALBAL")) {
                     ServerUtility.setParameter("lang", cookies.get("ALBAL"));
                 }
 
-                // WebSocket kabul mesajı oluştur
                 String key = httpMessage.getHeaders("Sec-WebSocket-Key")[0].getValue() + WEB_SOCKET_MAGIC_STRING;
                 try {
                     MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -745,10 +770,58 @@ public class ConnectionCore {
                     get_writer().write(output);
                     get_writer().flush();
                     this.closeConnection("");
-                }
+                }else{
+                    int totalBytes = 0;
+                    File f = new File(ServerManagment.getConnectionHandler()._rootFolder + uri);
 
+                    try (FileInputStream fis = new FileInputStream(f)) {
+                        String contentType = ConnectionCore.mimeTypes.getOrDefault("bin", "application/octet-stream");
+                        String ext = "";
+                        if (f.getName().contains(".")) {
+                            ext = f.getName().substring(f.getName().lastIndexOf('.') + 1).toLowerCase();
+                            contentType = ConnectionCore.mimeTypes.getOrDefault(ext, contentType);
+                        }
+
+                        String headers = String.format("HTTP/1.1 200 OK\r\nContent-Length: %d\r\nConnection: Keep-Alive\r\nCache-Control: max-age=360000\r\nContent-Type: %s\r\n\r\n", f.length(), contentType);
+                        get_writer().write(headers);
+                        get_writer().flush();
+                        totalBytes += headers.length();
+
+                        byte[] buffer = new byte[512];
+                        int len;
+                        while ((len = fis.read(buffer)) != -1) {
+                            get_outputStream().write(buffer, 0, len);
+                            totalBytes += len;
+                        }
+                        get_outputStream().flush();
+                    } catch (IOException e) {
+                        Logger.Error(e, "Error reading file", true);
+                        query = "<html xmlns='http://www.w3.org/1999/xhtml' lang='en'><head><title>404</title><style type='text/css'>body { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABZ0RVh0Q3JlYXRpb24gVGltZQAxMC8yOS8xMiKqq3kAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzVxteM2AAABHklEQVRIib2Vyw6EIAxFW5idr///Qx9sfG3pLEyJ3tAwi5EmBqRo7vHawiEEERHS6x7MTMxMVv6+z3tPMUYSkfTM/R0fEaG2bbMv+Gc4nZzn+dN4HAcREa3r+hi3bcuu68jLskhVIlW073tWaYlQ9+F9IpqmSfq+fwskhdO/AwmUTJXrOuaRQNeRkOd5lq7rXmS5InmERKoER/QMvUAPlZDHcZRhGN4CSeGY+aHMqgcks5RrHv/eeh455x5KrMq2yHQdibDO6ncG/KZWL7M8xDyS1/MIO0NJqdULLS81X6/X6aR0nqBSJcPeZnlZrzN477NKURn2Nus8sjzmEII0TfMiyxUuxphVWjpJkbx0btUnshRihVv70Bv8ItXq6Asoi/ZiCbU6YgAAAABJRU5ErkJggg==);}.error-template {padding: 40px 15px;text-align: center;}.error-actions {margin-top:15px;margin-bottom:15px;}.error-actions .btn { margin-right:10px; }</style></head><body><div class='container'>    <div class='row'>        <div class='col-md-12'>            <div class='error-template'>                <h1>                    Özür Dileriz!</h1>                <h2>                    Bir sorun oluştu...</h2>                <div class='error-details'>                    Tüm seçimleri doğru yaptığınız halde bu sorunla karşılaşıyorsanız lütfen çağrı merkezimizi arayarak destek talep ediniz.                </div>            </div>        </div>    </div></div></body></html>";
+                        nMessage = "HTTP/1.0 404 Not Found\r\nContent-Length: " + query.length() + "\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\n\r\n" + query;
+                        try {
+                            get_writer().write(nMessage);
+                            get_writer().flush();
+                            get_writer().write(query);
+                            get_writer().flush();
+                            this.closeConnection("");
+                        } catch (Exception e2) {
+                            Logger.Error(e2, "Error writing error message", true);
+                        }
+                    }
+                }
             } catch (Exception e) {
                 Logger.Error(e, "Error parsing http header", true);
+                query = "<html xmlns='http://www.w3.org/1999/xhtml' lang='en'><head><title>404</title><style type='text/css'>body { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABZ0RVh0Q3JlYXRpb24gVGltZQAxMC8yOS8xMiKqq3kAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzVxteM2AAABHklEQVRIib2Vyw6EIAxFW5idr///Qx9sfG3pLEyJ3tAwi5EmBqRo7vHawiEEERHS6x7MTMxMVv6+z3tPMUYSkfTM/R0fEaG2bbMv+Gc4nZzn+dN4HAcREa3r+hi3bcuu68jLskhVIlW073tWaYlQ9+F9IpqmSfq+fwskhdO/AwmUTJXrOuaRQNeRkOd5lq7rXmS5InmERKoER/QMvUAPlZDHcZRhGN4CSeGY+aHMqgcks5RrHv/eeh455x5KrMq2yHQdibDO6ncG/KZWL7M8xDyS1/MIO0NJqdULLS81X6/X6aR0nqBSJcPeZnlZrzN477NKURn2Nus8sjzmEII0TfMiyxUuxphVWjpJkbx0btUnshRihVv70Bv8ItXq6Asoi/ZiCbU6YgAAAABJRU5ErkJggg==);}.error-template {padding: 40px 15px;text-align: center;}.error-actions {margin-top:15px;margin-bottom:15px;}.error-actions .btn { margin-right:10px; }</style></head><body><div class='container'>    <div class='row'>        <div class='col-md-12'>            <div class='error-template'>                <h1>                    Özür Dileriz!</h1>                <h2>                    Bir sorun oluştu...</h2>                <div class='error-details'>                    Tüm seçimleri doğru yaptığınız halde bu sorunla karşılaşıyorsanız lütfen çağrı merkezimizi arayarak destek talep ediniz.                </div>            </div>        </div>    </div></div></body></html>";
+                nMessage = "HTTP/1.0 404 Not Found\r\nContent-Length: " + query.length() + "\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\n\r\n" + query;
+                try {
+                    get_writer().write(nMessage);
+                    get_writer().flush();
+                    get_writer().write(query);
+                    get_writer().flush();
+                    this.closeConnection("");
+                } catch (Exception e2) {
+                    Logger.Error(e2, "Error writing error message", true);
+                }
             }
         }
     }
