@@ -128,7 +128,7 @@ public class Table {
             public Col(Object content) {
                 setAttributes(new HashMap<>());
                 if(content instanceof String){
-                    setContent((String)content);
+                    setContent(RecordCore.convertToString(content,null));
                     setContentList(new ArrayList<>());
                 }else if(content instanceof Table){
                     setContent(null);

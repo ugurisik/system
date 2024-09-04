@@ -1,6 +1,7 @@
 package alba.system.server.core;
 
 import alba.system.server.utils.Enums;
+import alba.system.server.utils.Logger;
 import alba.system.server.utils.ServerUtility;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -23,6 +24,7 @@ import org.apache.http.params.BasicHttpParams;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -136,7 +138,18 @@ public class ConnectionCore {
                         }
                     }
 
-
+                  /*  ServerObject sInput = new ServerObject();
+                    sInput.args = new String[]{action};
+                    sInput.memory = mem;
+                    sInputs.put((String) "ARGS", sInput);
+                    SuResponse response = MapService.call(oMsg.get("cls").getAsString(), action, sInputs);
+                    ServerUtility.clearMemory();
+                    if (response.getForm() == null) {
+                        Translateable.translateAll(response);
+                        output = SuResponse.getGSON().toJson(response);
+                    } else {
+                        output = SuResponse.getGSON().toJson(response.getForm());
+                    }*/
                     output = "E005:INeedSomething!";
                 }
             } else {
@@ -195,7 +208,17 @@ public class ConnectionCore {
                                     sArgs[k - 3] = args[k];
                                 }
 
-
+                             /*   ServerObject sInput = new ServerObject();
+                                sInput.args = sArgs;
+                                sInput.memory = ServerUtility.getMemory();
+                                mem.put((String) "ARGS", sInput);
+                                SuResponse response = MapService.call(args[1], args[2], mem);
+                                ServerUtility.clearMemory();
+                                if (response.getForm() == null) {
+                                    output = SuResponse.getGSON().toJson(response);
+                                } else {
+                                    output = SuResponse.getGSON().toJson(response.getForm());
+                                }*/
                                 output = "E003:INeedMore!";
                             } else {
                                 output = "E003:INeedMore!";
@@ -524,8 +547,219 @@ public class ConnectionCore {
 
 
         public void processRequest(String message, boolean complete) {
+            StringBuilder httpData = new StringBuilder(message);
+            String nMessage;
 
+            if (!complete) {
+                boolean endOfMessage = false;
+                int lineCount = 0;
+
+                while (!endOfMessage) {
+                    try {
+                        nMessage = this._reader.readLine();
+                        if (nMessage == null) {
+                            break;
+                        }
+
+                        if (nMessage.isEmpty()) {
+                            endOfMessage = true;
+                        } else {
+                            httpData.append("\r\n").append(nMessage);
+                        }
+
+                    } catch (Exception e) {
+                        Logger.Error(e, "Error websocket handshake", true);
+                        this.switchType(Enums.SocketType.RAW);
+                        this.closeConnection("");
+                        return;
+                    }
+
+                    if (++lineCount > 30) {
+                        this.closeConnection("Too many headers.");
+                        return;
+                    }
+                }
+            }
+
+            String query = "";
+            try {
+                String uri = httpData.toString().split("\r\n")[0].split(" ")[1];
+                StringDictionary<String> queryValues = new StringDictionary<>();
+
+                if (uri.contains("?")) {
+                    query = uri.substring(uri.indexOf('?') + 1);
+                    uri = uri.substring(0, uri.indexOf('?'));
+                    String[] pairs = query.split("&");
+                    for (String pair : pairs) {
+                        String[] nameValue = pair.split("=");
+                        if (nameValue.length > 1) {
+                            queryValues.put(URLDecoder.decode(nameValue[0], StandardCharsets.UTF_8), URLDecoder.decode(nameValue[1], StandardCharsets.UTF_8));
+                        }
+                    }
+                }
+
+                if (uri.startsWith("/gtsp/") || (HttpCore.getPage(uri) != null)) {
+                    HttpMessage httpMessage = this._parseHttp(message);
+                    int length = getContentLength(message);
+                    StringDictionary<String> formData = new StringDictionary();
+                    StringDictionary<PostFile> files = new StringDictionary();
+                    String pair;
+                    if (length > 0) {
+                        Thread.sleep(100L);
+                        char[] chars = new char[length];
+                        int read = 0;
+
+                        while (read < length) {
+                            this._reader.read(chars, read, 1);
+                            read++;
+                        }
+
+                        String allMessage = new String(chars);
+                        Header[] contentHeaders = httpMessage.getHeaders("Content-Type");
+                        String contentType = "";
+
+                        if (contentHeaders != null && contentHeaders.length > 0) {
+                            contentType = contentHeaders[0].getValue();
+                        }
+
+                        if (!contentType.startsWith("multipart/form-data")) {
+                            httpData = new StringBuilder();
+                            httpData.append(URLDecoder.decode(allMessage, StandardCharsets.UTF_8));
+                        } else {
+                            String boundary = contentHeaders[0].getElements()[0].getParameterByName("boundary").getValue();
+                            allMessage = allMessage.substring(boundary.length() + 4, allMessage.length() - boundary.length() - 8);
+                            String[] multiParts = allMessage.split("\r\n--" + boundary + "\r\n");
+
+                            for (String part : multiParts) {
+                                if (!part.isEmpty() && !part.startsWith("--")) {
+                                    StringDictionary<String> mimeHeaders = new StringDictionary<>();
+                                    String[] subParts = part.split("\r\n\r\n");
+                                    String[] partHeaders = subParts[0].split("\r\n");
+
+                                    for (String disposition : partHeaders) {
+                                        String[] partHeaderElements = disposition.split(":");
+                                        mimeHeaders.put(partHeaderElements[0].trim(), partHeaderElements[1].trim());
+                                    }
+
+                                    if (!mimeHeaders.containsKey("Content-Type")) {
+                                        String disposition = mimeHeaders.get("Content-Disposition");
+                                        String[] params = disposition.split(";");
+
+                                        for (String param : params) {
+                                            String[] paramParts = param.split("=");
+                                            if ("name".equals(paramParts[0].trim())) {
+                                                String name = paramParts[1].replace("\"", "");
+                                                formData.put(name, subParts.length > 1 ? new String(subParts[1].getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8) : "");
+                                            }
+                                        }
+                                    } else {
+                                        PostFile pFile = new PostFile();
+                                        pFile.setMimeType(mimeHeaders.get("Content-Type").trim());
+                                        String disposition = mimeHeaders.get("Content-Disposition");
+                                        String[] params = disposition.split(";");
+                                        String fileId = "";
+
+                                        for (String param : params) {
+                                            String[] paramParts = param.split("=");
+                                            if ("name".equals(paramParts[0].trim())) {
+                                                fileId = paramParts[1].replace("\"", "");
+                                            } else if ("filename".equals(paramParts[0].trim())) {
+                                                pFile.setFileName(paramParts[1].replace("\"", ""));
+                                            }
+                                        }
+
+                                        if (subParts.length > 1) {
+                                            pFile.setContent(subParts[1].getBytes(StandardCharsets.ISO_8859_1));
+                                            files.put(fileId, pFile);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    HttpCore page = HttpCore.getPage(uri);
+                    String output;
+                    String header;
+
+                    if (page == null) {
+                        String newUri = uri.substring(6);
+                        page = HttpCore.getPage(newUri);
+                    }
+
+                    if (page == null) {
+                        output = "bulunamadı";
+                        header = "HTTP/1.0 404 Not Found\r\n"
+                                + "Content-Length: " + output.getBytes("UTF-8").length + "\r\n"
+                                + "Pragma: no-cache\r\n"
+                                + "Content-Type: text/html; charset=utf-8\r\n\r\n";
+                    } else {
+                        HttpCore.ActivePageParameters parameters = new HttpCore.ActivePageParameters();
+                        parameters.cookies = HttpCore.collectCookies(httpMessage);
+                        parameters.pageData = httpData.toString();
+                        parameters.query = query;
+                        parameters.queryValues = queryValues;
+                        parameters.files = files;
+                        parameters.formValues = formData;
+                        parameters.uri = uri;
+                        parameters.clientIP = getClientSocket().getInetAddress().getHostAddress();
+                        parameters.httpMessage = httpMessage;
+
+
+                        if (!httpData.isEmpty()) {
+                            for (String data : httpData.toString().split("&")) {
+                                String[] values = data.split("=");
+                                parameters.formValues.put(values[0], values.length > 1 ? values[1] : "");
+                            }
+                        }
+
+
+                        if (page.isStatefull()) {
+                            page = HttpCore.getStatefullPage(page, parameters);
+                        }
+
+
+
+                        HttpCore.ActivePageResponse response = page.run2R(parameters);
+
+
+                        if (page.isStatefull()) {
+                            HttpCore.ActivePageCookie cookie = new HttpCore.ActivePageCookie("ugur", page.getStatefullKey(), 86400);
+                            response.addCookie(cookie);
+                        }
+
+                        header = response.getHeader();
+                        output = response.getResponseText();
+
+                        if (response.getResponseOutput() != null) {
+                            get_writer().write(header);
+                            get_writer().flush();
+                            get_outputStream().write(response.getResponseOutput());
+                            get_outputStream().flush();
+                            this.closeConnection("");
+                            return;
+                        }
+                    }
+                    get_writer().write(header);
+                    get_writer().flush();
+                    get_writer().write(output);
+                    get_writer().flush();
+                    this.closeConnection("");
+                }
+
+            } catch (Exception e) {
+                Logger.Error(e, "Error parsing http header", true);
+            }
         }
+    }
+    private static int getContentLength(String message) {
+        String[] lines = message.split("\r\n");
+        for (String line : lines) {
+            if (line.startsWith("Content-Length:")) {
+                return Integer.parseInt(line.split(":")[1].trim());
+            }
+        }
+        return 0;
     }
 
     public static class ExtendedThread extends Thread {

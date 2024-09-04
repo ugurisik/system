@@ -1,6 +1,9 @@
 package alba.system.server;
 
 import alba.system.server.core.ConnectionCore;
+import alba.system.server.core.HttpCore;
+import alba.system.server.pages.MainPage;
+import alba.system.server.utils.Logger;
 import org.springframework.boot.autoconfigure.rsocket.RSocketProperties;
 
 import java.util.ArrayList;
@@ -19,6 +22,16 @@ public class ServerManagment {
         if (connectionCore == null) {
             connectionCore = new ConnectionCore(port);
         }
+        HttpCore.add("/", new MainPage());
+
+        for(ServerManagment.BeforeStartEvents event : startEventList) {
+            try{
+                event.onReady();
+            }catch (Exception e){
+                Logger.Error(e, "Error on start event", true);
+            }
+        }
+
         connectionCore.startListening();
     }
 
