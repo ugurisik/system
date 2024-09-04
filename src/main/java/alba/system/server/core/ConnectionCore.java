@@ -21,6 +21,8 @@ import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.params.BasicHttpParams;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -771,31 +773,44 @@ public class ConnectionCore {
                     get_writer().flush();
                     this.closeConnection("");
                 }else{
-                    int totalBytes = 0;
-                    File f = new File(ServerManagment.getConnectionHandler()._rootFolder + uri);
 
-                    try (FileInputStream fis = new FileInputStream(f)) {
-                        String contentType = ConnectionCore.mimeTypes.getOrDefault("bin", "application/octet-stream");
-                        String ext = "";
-                        if (f.getName().contains(".")) {
-                            ext = f.getName().substring(f.getName().lastIndexOf('.') + 1).toLowerCase();
-                            contentType = ConnectionCore.mimeTypes.getOrDefault(ext, contentType);
-                        }
+                    Resource resource = new ClassPathResource(uri);
+                    InputStream is = null;
+                    try {
+                        is = resource.getInputStream();
+                    } catch (IOException e) {
+                        Logger.Error(e, "Error reading resource", true);
+                    }
 
-                        String headers = String.format("HTTP/1.1 200 OK\r\nContent-Length: %d\r\nConnection: Keep-Alive\r\nCache-Control: max-age=360000\r\nContent-Type: %s\r\n\r\n", f.length(), contentType);
-                        get_writer().write(headers);
+                    if (is == null) {
+                        String notFound = "HTTP/1.1 404 Not Found\r\n\r\n";
+                        get_writer().write(notFound);
                         get_writer().flush();
-                        totalBytes += headers.length();
+                        this.closeConnection("");
+                        return;
+                    }
 
+                    try {
+                        ByteArrayOutputStream bufferStream = new ByteArrayOutputStream();
                         byte[] buffer = new byte[512];
                         int len;
-                        while ((len = fis.read(buffer)) != -1) {
-                            get_outputStream().write(buffer, 0, len);
-                            totalBytes += len;
+                        while ((len = is.read(buffer)) != -1) {
+                            bufferStream.write(buffer, 0, len);
                         }
+                        byte[] content = bufferStream.toByteArray();
+                        int contentLength = content.length;
+
+                        String contentType = "text/html";
+                        String headers = String.format("HTTP/1.1 200 OK\r\nContent-Length: %d\r\nConnection: Keep-Alive\r\nContent-Type: %s\r\n\r\n", contentLength, contentType);
+
+                        get_writer().write(headers);
+                        get_writer().flush();
+
+                        get_outputStream().write(content);
                         get_outputStream().flush();
+
                     } catch (IOException e) {
-                        Logger.Error(e, "Error reading file", true);
+                        Logger.Error(e, "Error writing resource", true);
                         query = "<html xmlns='http://www.w3.org/1999/xhtml' lang='en'><head><title>404</title><style type='text/css'>body { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABZ0RVh0Q3JlYXRpb24gVGltZQAxMC8yOS8xMiKqq3kAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzVxteM2AAABHklEQVRIib2Vyw6EIAxFW5idr///Qx9sfG3pLEyJ3tAwi5EmBqRo7vHawiEEERHS6x7MTMxMVv6+z3tPMUYSkfTM/R0fEaG2bbMv+Gc4nZzn+dN4HAcREa3r+hi3bcuu68jLskhVIlW073tWaYlQ9+F9IpqmSfq+fwskhdO/AwmUTJXrOuaRQNeRkOd5lq7rXmS5InmERKoER/QMvUAPlZDHcZRhGN4CSeGY+aHMqgcks5RrHv/eeh455x5KrMq2yHQdibDO6ncG/KZWL7M8xDyS1/MIO0NJqdULLS81X6/X6aR0nqBSJcPeZnlZrzN477NKURn2Nus8sjzmEII0TfMiyxUuxphVWjpJkbx0btUnshRihVv70Bv8ItXq6Asoi/ZiCbU6YgAAAABJRU5ErkJggg==);}.error-template {padding: 40px 15px;text-align: center;}.error-actions {margin-top:15px;margin-bottom:15px;}.error-actions .btn { margin-right:10px; }</style></head><body><div class='container'>    <div class='row'>        <div class='col-md-12'>            <div class='error-template'>                <h1>                    Özür Dileriz!</h1>                <h2>                    Bir sorun oluştu...</h2>                <div class='error-details'>                    Tüm seçimleri doğru yaptığınız halde bu sorunla karşılaşıyorsanız lütfen çağrı merkezimizi arayarak destek talep ediniz.                </div>            </div>        </div>    </div></div></body></html>";
                         nMessage = "HTTP/1.0 404 Not Found\r\nContent-Length: " + query.length() + "\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\n\r\n" + query;
                         try {
@@ -806,6 +821,12 @@ public class ConnectionCore {
                             this.closeConnection("");
                         } catch (Exception e2) {
                             Logger.Error(e2, "Error writing error message", true);
+                        }
+                    } finally {
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            Logger.Error(e, "Error closing resource", true);
                         }
                     }
                 }
