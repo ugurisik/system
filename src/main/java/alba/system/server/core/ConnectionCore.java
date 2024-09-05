@@ -25,6 +25,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
@@ -51,6 +52,8 @@ public class ConnectionCore {
     private static Pattern _messageIdPattern = Pattern.compile("MID:([0-9]*)");
     public static StringDictionary<String> mimeTypes;
     private int _port = 1920;
+    private static long messageCount = 0;
+    private static long messages = 1;
     private ServerSocket _serverSocket;
     private String _rootFolder = System.getProperty("user.dir");
 
@@ -316,7 +319,20 @@ public class ConnectionCore {
                 output = "E001:RetryWhenYouHaveSomethingToSay!";
             }
 
-            System.out.println("!-- --IP!" + ConnectionCore._socket.getInetAddress() + "!-- --M!" + message + "!--");
+
+            // TEST FOR LOG FILE
+          /*  StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 50; i++) {
+                sb.append(RecordCore.b2H(RecordCore.guid()));
+            } + sb.toString()*/
+
+
+            Logger.Info("!-- "+(messages)+"|"+(++messageCount)+" --IP!" + ConnectionCore._socket.getInetAddress() + "!-- --M!" + message + "!--",true);
+
+            if(messageCount >= 10){
+                messages++;
+                messageCount = 0;
+            }
             return messageId != null ? "MID:" + messageId + " " + output : output;
         } catch (Exception e) {
             StringWriter errors = new StringWriter();
@@ -801,6 +817,12 @@ public class ConnectionCore {
                         int contentLength = content.length;
 
                         String contentType = "text/html";
+                        String path = resource.getFilename();
+                        if (path != null) {
+                            String extension = path.substring(path.lastIndexOf('.') + 1);
+                            contentType = mimeTypes.get(extension);
+                        }
+
                         String headers = String.format("HTTP/1.1 200 OK\r\nContent-Length: %d\r\nConnection: Keep-Alive\r\nContent-Type: %s\r\n\r\n", contentLength, contentType);
 
                         get_writer().write(headers);
@@ -878,7 +900,7 @@ public class ConnectionCore {
                 if (!this.clientSocket.isClosed() && this.parent.isAlive()) {
                     try {
                         SessionCore sc = SessionCore.getCurrentContext(false);
-                        Thread.sleep(300L);
+                        Thread.sleep(100L);
                         ++this.pingCount;
                         if (this.pingCount <= 10) {
                             if (sc == null) {

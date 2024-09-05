@@ -1,1 +1,93 @@
-TEST
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <title>ALBATROS STK 4.0</title>
+    <link href="sources/extjs/resources/css/ext-all.css" rel="alternate stylesheet" title="old" type="text/css"/>
+    <link href="sources/default/css/ext-all.css" rel="stylesheet" title="new" type="text/css"/>
+    <link href="sources/default/css/desktop.css" rel="stylesheet" title="old" type="text/css"/>
+    <link href="sources/default/css/calendar.css" rel="stylesheet" type="text/css"/>
+    <!-- <link href="plugin/jsPlumb.css" rel="stylesheet" type="text/css"/> -->
+    <link href="sources/plugin/extensible-1.5.2/resources/css/extensible-all.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="sources/default/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="sources/default/css/toastr.min.css" rel="stylesheet" type="text/css"/>
+    <script>var UGRJS = {};
+    UGRJS.Config = {};
+    UGRJS.allScripts = '';</script>
+    <script src='sources/default/js/jquery.min.js' type='text/javascript'></script>
+    <script src='sources/default/js/extd.js' type='text/javascript'></script>
+
+    <script src='sources/default/js/bootstrap.min.js' type='text/javascript'></script>
+    <script src='sources/default/js/toastr.min.js' type='text/javascript'></script>
+
+
+    <script src="sources/plugin/extensible-1.5.2/pkgs/extensible-core-debug.js"
+            type="text/javascript"></script>
+    <script src="sources/plugin/extensible-1.5.2/pkgs/calendar-debug.js"
+            type="text/javascript"></script>
+    <script src='sources/default/js/extjsimp.js' type='text/javascript'></script>
+    <script src='sources/default/js/extjs.js' type='text/javascript'></script>
+
+    <script
+            type="text/javascript">UGRJS.net = {};
+    if (Ext.firefoxVersion >= 18) {
+        var noArgs = [];
+        Ext.override(Ext.Base, {
+            callParent: function (args) {
+                var method,
+                    superMethod = (method = this.callParent.caller) && (method.$previous || ((method = method.$owner ? method : method.caller) && method.$owner.superclass[method.$name]));
+                try {
+                } catch (e) {
+                }
+                return superMethod.apply(this, args || noArgs);
+            }
+        });
+    }
+    var myDesktopApp;
+    Ext.onReady(function () {
+        myDesktopApp = new MyDesktop.App();
+        UGRJS.net.wsConnector = Ext.create('UGRFrontend.net.WsConnector', {
+            port: 1072,
+            listeners: {
+                connect: function () {
+                    UGRJS.Desktop = Ext.create('UGRFrontend.desktop.Desktop', {
+                        wsocket: UGRJS.net.wsConnector,
+                        params: [{key: 'role', value: 'private'}]
+                    });
+                    UGRJS.Language = Ext.create('UGRFrontend.desktop.Language', {});
+                    UGRJS.Desktop.start();
+                    Ext.getBody().unmask();
+                }, error: function () {
+                    Ext.Msg.alert('Error', 'Uygulama sunucusuna baglanilamadi!');
+                }
+            }
+        });
+        UGRJS.net.wsConnector.connect();
+    });</script>
+
+    <script src='sources/plugin/jquery-ui.min.js' type='text/javascript'></script>
+    <script src='sources/plugin/jquery.ui.touch-punch.min.js' type='text/javascript'></script>
+    <script src='sources/plugin/jquery.jsPlumb-1.5.4-min.js' type='text/javascript'></script>
+    </script>
+</head>
+
+<body>
+<a alt="Çağrı Merkezi :  0850 259 03 83" href="" id="poweredby">
+</a>
+<div id="startupLoader" style="position:relative; top:200px; left:50%;display: none"><img
+        src="sources/assets/gif/loader.gif"/></div>
+</body>
+
+
+<script>
+    window.onbeforeunload = popup;
+
+    function popup() {
+        return 'kapatmak istediğine emin misiniz ?';
+    }
+</script>
+
+
+</html>

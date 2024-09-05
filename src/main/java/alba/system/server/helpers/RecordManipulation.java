@@ -33,7 +33,7 @@ public class RecordManipulation  implements Serializable {
     @Expose
     @SerializedName("owner")
     public String owner;
-    public String errorMessage = "GENERAL_ERROR";
+    public String errorMessage = "GENEL HATA";
 
     public RecordManipulation() {
         this.type = Enums.ManipulationType.NONE;
