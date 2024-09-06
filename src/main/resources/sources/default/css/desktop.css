@@ -1,0 +1,544 @@
+/*!
+* Ext JS Library 4.0
+* Copyright(c) 2006-2011 Sencha Inc.
+* licensing@sencha.com
+* http://www.sencha.com/license
+*/
+
+#poweredby {
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
+    z-index: 15000;
+
+    /* IE 5-7 */
+    filter: alpha(opacity=70);
+    /* Netscape */
+    -moz-opacity: 0.7;
+    /* Safari 1.x */
+    -khtml-opacity: 0.7;
+    /* Good browsers */
+    opacity: 0.7;
+}
+
+.widget-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: block;
+    z-index: 15001;
+    width: 20%;
+    height: 90%;
+    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 220px;
+}
+
+.widget {
+    padding: 5px;
+    border-radius: 4px;
+}
+
+#poweredby div {
+    position: relative;
+    width: 150px;
+    height: 25px;
+    background-repeat: no-repeat;
+}
+
+#toast-container {
+    z-index: 9999 !important;
+}
+
+#desktop-1009_wallpaper {
+    /* background-image: url(wallpapers/dark.jpg) !important; */
+    background-color: #ececec !important;
+    background-image: url(/sources/assets/images/msb.png) !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 35%;
+    opacity: 0.7;
+}
+
+#desktop-1009_wallpaper::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    content: '';
+    background-image: url(/sources/assets/images/albatros.png) !important;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 200px;
+    height: 74px;
+    opacity: 0.5;
+}
+
+.x-btn .x-btn-center .x-btn-inner b {
+    color: black !important;
+    display: block;
+    max-height: 23px;
+    overflow: hidden;
+    line-height: 11px;
+    text-overflow: ellipsis;
+    width: 100%;
+    white-space: normal;
+}
+
+#role .authorizedModuleForm div {
+    background-color: rgb(26, 110, 49) !important;
+    margin-top: 1px !important;
+    color: white;
+}
+
+#role .notAuthorizedModuleForm div {
+    background-color: rgb(132, 16, 16) !important;
+    margin-top: 1px !important;
+    color: white;
+}
+
+/* The simple background image PNG does not work in IE6-8, but does in IE9 */
+.x-ie6 #poweredby div,
+.x-ie7 #poweredby div,
+.x-ie8 #poweredby div {
+    background-image: none;
+}
+
+/*----------------------------------------------------
+    Start Button
+*/
+
+.ux-start-button-icon {
+    background-image: url(../../../sources/assets/images/16/stk.png) !important;
+    background-color: transparent;
+}
+
+.ux-start-button .x-btn-arrow {
+    background-image: none;
+}
+
+.ux-start-button .x-btn-arrow-right {
+    padding-left: 10px;
+}
+
+.ux-taskbar {
+    padding-left: 4px !important;
+}
+
+/*
+    Start Button (Black)
+*/
+
+.ux-desktop-black .ux-start-button {
+    height: 28px;
+    padding: 0px;
+    display: block;
+}
+
+.ux-desktop-black .ux-start-button em {
+    margin-top: 5px;
+}
+
+.ux-desktop-black .ux-start-button .x-btn-inner {
+    color: black;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.ux-desktop-black .ux-start-button {
+    background-image: -moz-linear-gradient(center top, #E4F3FF, #D9EDFF 48%, #C2D8F2 52%, #C6DCF6);
+    border-radius: 8px 8px 8px 8px;
+    border-color: #81A4D0;
+}
+
+/*----------------------------------------------------
+    Start Menu
+*/
+
+.ux-start-menu-toolbar .x-btn-inner {
+    text-align: left;
+}
+
+.ux-start-menu-toolbar {
+    padding: 4px !important;
+}
+
+/*----------------------------------------------------
+    TaskBar
+*/
+
+.ux-taskbar .x-toolbar {
+    background: transparent none;
+    border-color: transparent;
+}
+
+.x-ie6 .ux-taskbar .x-toolbar {
+    border-color: #d3e1f1;
+}
+
+.ux-desktop-windowbar .x-btn-inner,
+.x-nbr .ux-desktop-windowbar .x-btn-icon-text-left button {
+    text-align: left !important;
+}
+
+.ux-taskbar .x-toolbar {
+    height: 28px;
+}
+
+.ux-taskbar {
+    height: 28px;
+    padding: 0;
+}
+
+.x-toolbar .x-toolbar {
+    padding: 0;
+}
+
+/*
+    TaskBar (Black)
+*/
+
+.ux-desktop-black .ux-taskbar {
+    background: transparent url('sources/assets/images/taskbar/black/taskbar-start-panel-bg.gif') repeat-x left top;
+    border-color: transparent;
+    /*height: 30px;*/
+}
+
+.ux-desktop-black .ux-taskbar .x-splitter {
+    background: transparent url(sources/assets/images/taskbar-split-h.gif) no-repeat scroll 0 -2px;
+}
+
+.ux-desktop-black .ux-taskbar .x-toolbar-text {
+    color: white !important;
+}
+
+.ux-desktop-black .ux-taskbar .x-btn-default-toolbar-small-over {
+    background-color: yellow;
+}
+
+.ux-desktop-black .ux-taskbar .x-btn-inner {
+    color: white;
+}
+
+.ux-desktop-black .ux-taskbar .x-btn-pressed .x-btn-inner, .ux-taskbar .x-btn-over .x-btn-inner {
+    color: black;
+}
+
+/*----------------------------------------------------
+    Tray Clock
+*/
+
+.ux-desktop-trayclock {
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/*----------------------------------------------------
+    Desktop DataView
+*/
+
+.ux-wallpaper {
+    background-color: #3d71b8;
+}
+
+.ux-wallpaper-tiled {
+    background-repeat: repeat;
+}
+
+.ux-desktop-shortcut {
+    cursor: pointer;
+    text-align: center;
+    padding: 8px;
+    margin: 8px;
+    width: 64px;
+}
+
+.ux-desktop-shortcut-icon {
+    width: 48px;
+    height: 48px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+
+.ux-desktop-shortcut-text {
+    font: normal 10px tahoma, arial, verdana, sans-serif;
+    text-decoration: none;
+    padding-top: 5px;
+    color: white;
+}
+
+.x-view-over .ux-desktop-shortcut-text {
+    text-decoration: underline;
+}
+
+
+/*----------------------------------------------------
+    Various icon classes
+*/
+
+.accordion-shortcut {
+    background-image: url(sources/assets/images/im48x48.png);
+}
+
+.cpu-shortcut {
+    background-image: url(sources/assets/images/statusLarge.png);
+}
+
+.grid-shortcut {
+    background-image: url(sources/assets/images/grid48x48.png);
+}
+
+.notepad-shortcut {
+    background-image: url(sources/assets/images/notepadLarge.png);
+    width: 46px;
+    height: 46px;
+}
+
+.x-ie6 .accordion-shortcut {
+    background-image: none;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/im48x48.png', sizingMethod='scale');
+}
+
+.x-ie6 .cpu-shortcut {
+    background-image: none;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/statusLarge.png', sizingMethod='scale');
+}
+
+.x-ie6 .grid-shortcut {
+    background-image: none;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/grid48x48.png', sizingMethod='scale');
+}
+
+.x-ie6 .notepad-shortcut {
+    background-image: none;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/notepadLarge.png', sizingMethod='scale');
+}
+
+.video {
+    background-image: url(sources/assets/images/gears.gif);
+}
+
+.bogus {
+    background-image: url(sources/assets/images/bogus.png) !important;
+}
+
+.notepad {
+    background-image: url(sources/assets/images/bogus.png) !important;
+}
+
+.logout {
+    background-image: url(sources/assets/images/logout.gif) !important;
+}
+
+.settings {
+    background-image: url(sources/assets/images/gears.gif) !important;
+}
+
+
+.icon-grid {
+    background-image: url(sources/assets/images/grid.png) !important;
+}
+
+.add {
+    background-image: url(sources/assets/icons/fam/add.gif) !important;
+}
+
+.option {
+    background-image: url(sources/assets/icons/fam/plugin.gif) !important;
+}
+
+.remove {
+    background-image: url(sources/assets/icons/fam/delete.gif) !important;
+}
+
+.save {
+    background-image: url(sources/assets/icons/save.gif) !important;
+}
+
+.accordion {
+    background-image: url(sources/assets/images/accordian.gif) !important;
+}
+
+.tabs {
+    background-image: url(sources/assets/images/tabs.gif) !important;
+}
+
+/*----------------------------------------------------
+    IM window icons
+*/
+
+.user {
+    background-image: url(sources/assets/icons/fam/user.gif) !important;
+}
+
+.user-add {
+    background-image: url(sources/assets/icons/fam/user_add.gif) !important;
+}
+
+.user-delete {
+    background-image: url(sources/assets/icons/fam/user_delete.gif) !important;
+}
+
+.connect {
+    background-image: url(sources/assets/icons/fam/connect.gif) !important;
+}
+
+.user-girl {
+    background-image: url(sources/assets/icons/fam/user_female.gif) !important;
+}
+
+.user-kid {
+    background-image: url(sources/assets/icons/fam/user_green.gif) !important;
+}
+
+.user-suit {
+    background-image: url(sources/assets/icons/fam/user_suit.gif) !important;
+}
+
+.win-login {
+    background-image: url(../resources/desktop/icons/faenza/actions/16/system-lock-screen.png);
+}
+
+.quickstart-shortcuts {
+    background-image: url(sources/assets/icons/components/component.png);
+}
+
+.quickstart-home {
+    background-image: url(sources/assets/icons/components/panel.png);
+}
+
+.chat-message {
+    font-weight: normal;
+    background: #b9c9fe url("sources/assets/images/communicator/gradient-head.png") repeat-x;
+    border-top: 2px solid #d3ddff;
+    border-bottom: 1px solid #fff;
+    color: #039;
+    padding: 8px;
+    width: 100%;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+}
+
+.chat-message-sender {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.chat-message-sender p {
+    padding-left: 5px;
+}
+
+.chat-message-text {
+    font-size: 12px;
+}
+
+.chat-message-text p {
+    padding-left: 10px;
+}
+
+.shortcutview-overitem {
+    background-color: #EEEEFF;
+}
+
+.shortcutview-selecteditem {
+    border-style: dashed;
+    border-width: 1px;
+    border-color: #AAAAFF;
+}
+
+.gtgrid-row-default td {
+    color: #000000 !important;
+}
+
+.x-grid-row-selected td {
+    color: black !important;
+    font-weight: bold !important;
+    /*text-shadow: #0a387e 0 -1px 0;*/
+    background-color: #0e4dad !important;
+}
+
+.gtgrid-row-changed td {
+    background: #8A8A17 !important;
+}
+
+.gtgrid-row-inserted td {
+    background: #178A24 !important;
+}
+
+.gtgrid-row-deleted td {
+    background-image: url(sources/assets/images/deleted_cell.png);
+    background-repeat: repeat !important;
+}
+
+.x-dd-drag-ghost {
+    filter: alpha(opacity=30);
+    opacity: .3 !important;
+    background: rgba(0, 0, 0, 0);
+    border: none;
+}
+
+.x-desktop-trashcan {
+    filter: alpha(opacity=30);
+    opacity: .3;
+    margin-left: auto;
+    margin-right: auto;
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0);
+    border: none;
+    margin-top: 10px;
+    margin-bottom: auto;
+}
+
+.x-dd-drop-trash .x-dd-drop-icon {
+    background-image: url(sources/assets/icons/components/component.png);
+    background-color: #FFFFFF;
+}
+
+.ux-regionschedule-header {
+    text-align: center;
+}
+
+.ux-regionschedule-header font {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.ux-regionschedule-cell {
+    text-align: center;
+}
+
+.ux-regionschedule-cell font {
+    font-size: 10px;
+}
+
+.ux-gtregionschedule {
+    background-image: url(sources/assets/images/deleted_cell.png);
+    background-repeat: repeat !important;
+}
+
+.x-column-header-inner {
+    zoom: 1;
+    position: relative;
+    white-space: nowrap;
+    line-height: 15px;
+    padding: 3px 18px 4px !important;
+}
+
+.x-column-header-filtered div[id$="titleEl"] {
+    background-image: url(sources/assets/images/icon_filter.png);
+    background-repeat: no-repeat;
+    color: #660000;
+    background-position: left center;
+}
+
+.x-column-header-filtered span {
+    color: #990000;
+}
+
+.x-mask-msg-lock {
+    z-index: 999999;
+}
