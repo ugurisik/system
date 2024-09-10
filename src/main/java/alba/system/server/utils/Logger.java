@@ -4,6 +4,7 @@ import alba.system.server.core.RecordCore;
 import lombok.Getter;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class Logger {
     @Getter
@@ -54,8 +57,7 @@ public class Logger {
             if(writer == null){
                 return;
             }
-            message = message.replaceAll("\u001B\\[.+?m", "");
-            message = Crypto.encrypt(message);
+
 
             writer.write(message);
             writer.newLine();
@@ -63,12 +65,29 @@ public class Logger {
             if (logCount >= 0) {
                 writer.flush();
                 if (getFileSizeMB(fileName) > 3) {
+                    writer.close();
                     String newFileName = defaultPath + "info\\" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss")) + "_.userlog";
 
                     writer = new BufferedWriter(new FileWriter(newFileName));
                     fileName = newFileName;
+                    deleteOldLogs(10);
                 }
                 logCount = 0;
+            }
+        } catch (Exception e) {
+            Logger.Error(e, false);
+        }
+    }
+    private static void deleteOldLogs(int maxLogFiles) {
+        try {
+            Path logDir = Paths.get(defaultPath + "info\\");
+            File[] logFiles = logDir.toFile().listFiles();
+
+            if (logFiles != null && logFiles.length > maxLogFiles) {
+                Arrays.sort(logFiles, Comparator.comparingLong(File::lastModified));
+                for (int i = 0; i < logFiles.length - maxLogFiles; i++) {
+                    logFiles[i].delete();
+                }
             }
         } catch (Exception e) {
             Logger.Error(e, false);
@@ -77,7 +96,7 @@ public class Logger {
 
 
     public static void Error(String message, Boolean saveLog) {
-        deep(ANSI_RED + " <- E -> " + ANSI_RESET, message, saveLog);
+        deep(ANSI_RED + " <- E -> " + ANSI_RESET, message, saveLog,"E");
     }
 
     public static void Error(Exception e, Boolean saveLog) {
@@ -107,11 +126,11 @@ public class Logger {
 
 
     public static void Info(String message, Boolean saveLog) {
-        deep(ANSI_GREEN + " <- I -> " + ANSI_RESET, message, saveLog);
+        deep(ANSI_GREEN + " <- I -> " + ANSI_RESET, message, saveLog,"I");
     }
 
     public static void Info(String message) {
-        deep(ANSI_GREEN + " <- I -> " + ANSI_RESET, message, false);
+        deep(ANSI_GREEN + " <- I -> " + ANSI_RESET, message, false,"I");
     }
 
     private static long getFileSizeMB(String fileName) {
@@ -125,12 +144,29 @@ public class Logger {
         }
     }
 
-    private static void deep(String type, String message, boolean saveLog) {
+    private static void deep(String type, String message, boolean saveLog, String type_) {
         String date = RecordCore.padRight(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), 20);
         String msg = date + " ".repeat(5) + type + " ".repeat(5) + message;
+        System.out.println(msg);
         if (saveLog) {
+            msg = msg.replaceAll("\u001B\\[.+?m", "");
+            if(!type_.equals("E")){
+                try{
+                    msg =date + " ".repeat(5) + type + " ".repeat(5) + Crypto.encrypt(message) + "\n";
+                    msg = msg.replaceAll("\u001B\\[.+?m", "");
+                }catch (Exception e){
+                    msg = msg + "\n";
+                }
+            }else{
+                String prefix = RecordCore.padRight("--------------------------------------------------------\n", 10);
+                String suffix = RecordCore.padRight("--------------------------------------------------------\n", 10);
+                msg = prefix + msg + "\n" + suffix;
+            }
             saveLog(msg);
         }
-        System.out.println(msg);
+    }
+    public static void clearConsole() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }

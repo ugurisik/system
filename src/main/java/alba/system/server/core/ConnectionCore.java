@@ -94,6 +94,7 @@ public class ConnectionCore {
         Matcher m = _messageIdPattern.matcher(message);
         return m.find() ? m.group(1) : null;
     }
+
     private static String[] _getArgs(String message) {
         Matcher m = _argumentPattern.matcher(message);
         ArrayList result = new ArrayList();
@@ -127,6 +128,7 @@ public class ConnectionCore {
             }
         }
     }
+
     public static String processMessage(String message) {
         try {
             String messageId = _getMessageId(message);
@@ -188,7 +190,7 @@ public class ConnectionCore {
                     } else {
                         output = SuResponse.getGSON().toJson(response.getForm());
                     }*/
-                  //  output = "E005:INeedSomething!";
+                    //  output = "E005:INeedSomething!";
                 }
             } else {
                 String[] args = _getArgs(message);
@@ -264,7 +266,7 @@ public class ConnectionCore {
                         } else if (args[0].equals("form")) {
                             mem = ServerUtility.getMemory();
                             if (args.length > 1) {
-                             //   WindowForm form;
+                                //   WindowForm form;
                                 if (args[1].equals("activate")) {
                                     if (args.length > 2) {
                                       /*  form = WindowForm.getFormByUuid(args[2]);
@@ -327,11 +329,15 @@ public class ConnectionCore {
             } + sb.toString()*/
 
 
-            Logger.Info("!-- "+(messages)+"|"+(++messageCount)+" --IP!" + ConnectionCore._socket.getInetAddress() + "!-- --M!" + message + "!--",true);
+            Logger.Info("!-- " + (messages) + "|" + (++messageCount) + " --IP!" + ConnectionCore._socket.getInetAddress() + "!-- --M!" + message + "!--", true);
 
-            if(messageCount >= 10){
+            if (messageCount >= 10) {
                 messages++;
                 messageCount = 0;
+            }
+            if ((messages * 10) % 200 == 0) {
+                Logger.Info("Clearing console", true);
+                Logger.clearConsole();
             }
             return messageId != null ? "MID:" + messageId + " " + output : output;
         } catch (Exception e) {
@@ -450,6 +456,7 @@ public class ConnectionCore {
                 System.out.println("Error5: " + e.getMessage());
             }
         }
+
         private HttpMessage _parseHttp(String input) {
             try {
                 SessionInputBuffer inputBuffer = new AbstractSessionInputBuffer() {
@@ -762,7 +769,6 @@ public class ConnectionCore {
                         }
 
 
-
                         HttpCore.ActivePageResponse response = page.run2R(parameters);
 
 
@@ -788,7 +794,7 @@ public class ConnectionCore {
                     get_writer().write(output);
                     get_writer().flush();
                     this.closeConnection("");
-                }else{
+                } else {
 
                     Resource resource = new ClassPathResource(uri);
                     InputStream is = null;
@@ -868,6 +874,7 @@ public class ConnectionCore {
             }
         }
     }
+
     private static int getContentLength(String message) {
         String[] lines = message.split("\r\n");
         for (String line : lines) {
@@ -957,7 +964,6 @@ public class ConnectionCore {
             }
         }
     }
-
 
 
 }

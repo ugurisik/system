@@ -17,9 +17,11 @@ public class Crypto {
         this.secretKey = generateKey(SystemApplication.secretKey);
     }
 
-    private static SecretKey generateKey(String key) {
+    private static SecretKey generateKey(String key){
         byte[] keyBytes = key.getBytes();
-        return new SecretKeySpec(keyBytes, 0, KEY_SIZE / 8, ALGORITHM);
+        byte[] keyBytesPadded = new byte[KEY_SIZE / 8]; // Örneğin 128 bit için 16 byte
+        System.arraycopy(keyBytes, 0, keyBytesPadded, 0, Math.min(keyBytes.length, keyBytesPadded.length));
+        return new SecretKeySpec(keyBytesPadded, ALGORITHM);
     }
 
     public static String encrypt(String data) throws Exception {
@@ -29,6 +31,7 @@ public class Crypto {
             byte[] encryptedBytes = cipher.doFinal(data.getBytes());
             return Base64.getEncoder().encodeToString(encryptedBytes);
         }catch (Exception e){
+            Logger.Error(e, false);
             return data;
         }
     }
