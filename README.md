@@ -32,3 +32,19 @@ table.render(); // Returns the HTML code of the table.
 // table.toJson();
 ```
 
+EndPoints Usage
+----------------------------
+>```java
+>SystemApplication.projects should follow this structure:
+>projectName;projectName;.......
+>The endpoints should adhere to this structure:
+>alba.system.server.endpoints.projectName.class
+>Each class must extend `HttpCore`. 
+>If you need to specify a custom endpoint name, include it in the constructor using `setRoute("routeName")`**.
+>```
+
+
+
+
+
+
