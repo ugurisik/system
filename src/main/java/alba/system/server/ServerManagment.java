@@ -1,10 +1,11 @@
 package alba.system.server;
 
+import alba.system.SystemApplication;
 import alba.system.server.core.ConnectionCore;
 import alba.system.server.core.HttpCore;
-import alba.system.server.pages.MainPage;
+import alba.system.server.endpoints.MainPage;
 import alba.system.server.utils.Logger;
-import org.springframework.boot.autoconfigure.rsocket.RSocketProperties;
+import org.reflections.Reflections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,25 @@ public class ServerManagment {
         }
         HttpCore.add("/", new MainPage());
 
+        // Auto mapping for endpoints
+        String[] packages = SystemApplication.projects.split(";");
+        for (String pack : packages) {
+            Reflections reflections = new Reflections("alba.system.server.endpoints." + pack);
+            reflections.getSubTypesOf(HttpCore.class).forEach(httpCore -> {
+                try {
+                    HttpCore httpCore1 = httpCore.newInstance();
+                    String className = httpCore1.getClass().getName();
+                    className = className.substring(className.lastIndexOf('.') + 1);
+                    className = httpCore1.getRoute().isEmpty() ? className : httpCore1.getRoute();
+                    System.out.println(className);
+                    HttpCore.add("/"+className, httpCore1);
+                } catch (InstantiationException | IllegalAccessException e) {
+                    Logger.Error(e, "Error on endpoint", true);
+                }
+            });
+        }
+
+
         for(ServerManagment.BeforeStartEvents event : startEventList) {
             try{
                 event.onReady();
@@ -34,7 +54,6 @@ public class ServerManagment {
                 Logger.Error(e, "Error on start event", true);
             }
         }
-
         connectionCore.startListening();
     }
 

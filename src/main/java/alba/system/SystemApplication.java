@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 public class SystemApplication {
 
 	public static String secretKey = "K3DK9SZ3";
+	public static String projects = "canteen;facility";
 	public static final String startTime = System.getProperty("user.dir")+"\\log\\info\\"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 	public static void main(String[] args) {
 		SpringApplication.run(SystemApplication.class, args);

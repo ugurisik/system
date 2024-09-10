@@ -640,7 +640,7 @@ public class ConnectionCore {
                         }
                     }
                 }
-
+                // TODO:: When sending post request, it is not parsed correctly and throws an exception Error parsing http header. Must be fixed.
                 if (uri.startsWith("/gtsp/") || (HttpCore.getPage(uri) != null)) {
                     HttpMessage httpMessage = this._parseHttp(message);
                     int length = getContentLength(message);

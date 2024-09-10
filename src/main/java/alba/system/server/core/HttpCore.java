@@ -26,6 +26,8 @@ public class HttpCore {
     private static boolean hasAbsoluteUrl = false;
     private boolean isStatefull = false;
     private String statefullKey = RecordCore.b2H(RecordCore.guid());
+    public String route = "";
+
 
     public static boolean hasAbsoluteUri() {
         return hasAbsoluteUrl;
@@ -182,6 +184,10 @@ public class HttpCore {
         private List<String> headers = new ArrayList();
         public ActivePageResponse(String responseText) {
             setResponseText(responseText);
+        }
+        public ActivePageResponse(String responseText, String contentType) {
+            setResponseText(responseText);
+            setContentType(contentType);
         }
 
         public ActivePageResponse(byte[] responseOutput) {
