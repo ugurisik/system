@@ -9,6 +9,7 @@ import org.apache.http.HeaderElement;
 import org.apache.http.HttpMessage;
 import org.apache.http.NameValuePair;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +56,8 @@ public class HttpCore {
 
     public static void addPage(String uri, Class<? extends HttpCore> pageClass, boolean absolute) {
         try {
-            HttpCore page = (HttpCore) pageClass.newInstance();
+            Constructor<? extends HttpCore> constructor = pageClass.getConstructor();
+            HttpCore page = constructor.newInstance();
             page.setStatefull(true);
             addPage(uri, page, absolute);
         } catch (Exception e) {
@@ -63,14 +65,15 @@ public class HttpCore {
         }
     }
     public static void addPage(String uri, HttpCore page, boolean absoluteUri) {
-        if (activePages.get(uri) == null) {
-            activePages.put((String) uri, page);
+        activePages.computeIfAbsent(uri, k -> {
             if (absoluteUri) {
                 HttpCore.absoluteUrl = absoluteUri;
                 page.hasAbsoluteUrl = true;
             }
-        }
+            return page;
+        });
     }
+
 
     public static HttpCore getPage(String uri) {
         HttpCore page = (HttpCore) activePages.get(uri);
@@ -138,7 +141,7 @@ public class HttpCore {
         return output;
     }
     public HttpCore.ActivePageResponse run2R(HttpCore.ActivePageParameters parameters) {
-        HttpCore.ActivePageResponse output = new HttpCore.ActivePageResponse(this.run(parameters));
+        HttpCore.ActivePageResponse output = new HttpCore.ActivePageResponse(this.run(parameters),"");
         return output;
     }
     public String run(HttpCore.ActivePageParameters parameters) {
@@ -180,14 +183,21 @@ public class HttpCore {
         private byte[] responseOutput = null;
         private StringDictionary<HttpCore.ActivePageCookie> cookies = new StringDictionary();
         private String contentType = "text/html";
+        private String title = "";
         private int cacheAge;
         private List<String> headers = new ArrayList();
-        public ActivePageResponse(String responseText) {
+        public ActivePageResponse(String responseText, String title_ ) {
             setResponseText(responseText);
+            if(!title_.isEmpty()){
+                setTitle(title_);
+            }
         }
-        public ActivePageResponse(String responseText, String contentType) {
+        public ActivePageResponse(String responseText, String contentType, String title_) {
             setResponseText(responseText);
             setContentType(contentType);
+            if(!title_.isEmpty()){
+                setTitle(title_);
+            }
         }
 
         public ActivePageResponse(byte[] responseOutput) {
@@ -204,9 +214,11 @@ public class HttpCore {
         }
 
         public String getHeader() {
-            String output;
+            StringBuilder output = new StringBuilder();
             if (this.responseOutput != null) {
-                output = "HTTP/1.0 200 OK\r\nContent-Length: " + getResponseOutput().length + "\r\nCache-Control: " + (this.cacheAge == 0 ? "no-cache" : "max-age=" + this.cacheAge + ", public") + "\r\nContent-Type: " + this.contentType + "; charset=utf-8\r\n" + StringUtils.join(this.headers, "\r\n") + (this.headers.size() > 0 ? "\r\n" : "");
+                output.append("HTTP/1.0 200 OK\r\nContent-Length: ").append(getResponseOutput().length)
+                        .append("\r\nCache-Control: ").append(this.cacheAge == 0 ? "no-cache" : "max-age=" + this.cacheAge + ", public")
+                        .append("\r\nContent-Type: ").append(this.contentType).append("; charset=utf-8\r\n");
             } else {
                 int length = getResponseText().length();
                 try {
@@ -214,16 +226,18 @@ public class HttpCore {
                 } catch (Exception e) {
                     Logger.Error(e, "Can not get byte length of response text", true);
                 }
-                output = "HTTP/1.0 200 OK\r\nContent-Length: " + length + "\r\nCache-Control: " + (this.cacheAge == 0 ? "no-cache" : "max-age=" + this.cacheAge + ", public") + "\r\nContent-Type: " + this.contentType + "; charset=utf-8\r\n" + StringUtils.join(this.headers, "\r\n") + (this.headers.size() > 0 ? "\r\n" : "");
+                output.append("HTTP/1.0 200 OK\r\nContent-Length: ").append(length)
+                        .append("\r\nCache-Control: ").append(this.cacheAge == 0 ? "no-cache" : "max-age=" + this.cacheAge + ", public")
+                        .append("\r\nContent-Type: ").append(this.contentType).append("; charset=utf-8\r\n");
             }
-            HttpCore.ActivePageCookie cookie;
+
             if (!this.cookies.isEmpty()) {
-                for (ActivePageCookie activePageCookie : this.cookies.entryList()) {
-                    cookie = activePageCookie;
-                    output = output + "Set-Cookie: " + cookie.getKey() + "=" + cookie.getValue() + "; Path=/; Max-Age=" + cookie.getExpires() + "\r\n";
+                for (HttpCore.ActivePageCookie cookie : this.cookies.values()) {
+                    output.append("Set-Cookie: ").append(cookie.getKey()).append("=").append(cookie.getValue())
+                            .append("; Path=/; Max-Age=").append(cookie.getExpires()).append("\r\n");
                 }
             }
-            return output + "\r\n";
+            return output.toString() + "\r\n";
         }
 
         public void setCacheAge(int days) {

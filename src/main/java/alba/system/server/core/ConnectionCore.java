@@ -779,6 +779,9 @@ public class ConnectionCore {
 
                         header = response.getHeader();
                         output = response.getResponseText();
+                        if(!response.getTitle().isEmpty()){
+                            output =   "<title>"+response.getTitle()+"</title>"+output;
+                        }
 
                         if (response.getResponseOutput() != null) {
                             get_writer().write(header);

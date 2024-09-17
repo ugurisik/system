@@ -8,6 +8,6 @@ public class TestPage extends HttpCore {
        // setRoute("TestPage");
     }
     public HttpCore.ActivePageResponse run2R(HttpCore.ActivePageParameters parameters){
-        return new HttpCore.ActivePageResponse(Json.convertToJson(parameters));
+        return new HttpCore.ActivePageResponse(Json.convertToJson(parameters),"TEST PAGE");
     }
 }
