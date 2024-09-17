@@ -40,7 +40,7 @@ EndPoints Usage
 >The endpoints should adhere to this structure:
 >alba.system.server.endpoints.projectName.class
 >Each class must extend `HttpCore`. 
->If you need to specify a custom endpoint name, include it in the constructor using `setRoute("routeName")`**.
+>If you need to specify a custom endpoint name, include it in the constructor using `setRoute("routeName")`.
 >```
 
 
