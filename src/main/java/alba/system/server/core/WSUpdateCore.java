@@ -1,5 +1,6 @@
 package alba.system.server.core;
 
+import alba.system.projects.sys.record.User;
 import alba.system.server.helpers.*;
 import alba.system.server.utils.Enums;
 import com.google.gson.annotations.Expose;
@@ -235,6 +236,12 @@ public class WSUpdateCore {
         c.pump(p);
     }
 
+    public static void pumpAll(WSUpdateCore.Payload p){
+        for (WSUpdateCore.Channel c : channels) {
+            c.pump(p);
+        }
+    }
+
 
 
 
@@ -315,8 +322,7 @@ public class WSUpdateCore {
         public Payload(SessionCore sc) {
             this.origin.type = Enums.PayloadOriginType.USER;
             if (sc != null) {
-               // this.origin.userName = sc.getUser().getUserName();
-                this.origin.userName = "test";
+                this.origin.userName = sc.getUser().getUserName();
             }
 
             this.date = new Date();
@@ -324,10 +330,10 @@ public class WSUpdateCore {
 
         public Payload() {
             this.origin.type = Enums.PayloadOriginType.USER;
-          /*  ArkUser user = SessionCore.getCurrentContext().getUser();
+            User user = SessionCore.getCurrentContext().getUser();
             if (user != null) {
                 this.origin.userName = SessionCore.getCurrentContext().getUser().getUserName();
-            }*/
+            }
 
             this.date = new Date();
         }
@@ -342,9 +348,9 @@ public class WSUpdateCore {
             output.moduleInitiator = this.moduleInitiator;
             output.origin = this.origin;
             if (this.manipulations != null) {
-              /*  for (RecordManipulation manip : this.manipulations) {
+                for (RecordManipulation manip : this.manipulations) {
                     output.manipulations.add(manip.copy());
-                }*/
+                }
             }
             return output;
         }

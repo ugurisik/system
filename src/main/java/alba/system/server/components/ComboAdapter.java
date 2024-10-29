@@ -1,12 +1,12 @@
-package alba.system.server.helpers;
+package alba.system.server.components;
 
-import java.io.Serial;
+import alba.system.server.helpers.ForeignKeyPair;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
 public abstract class ComboAdapter implements Serializable {
-    @Serial
     private static final long serialVersionUID = -8033964705478799343L;
 
     public abstract List<ForeignKeyPair> getPairs();

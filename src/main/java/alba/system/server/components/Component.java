@@ -17,7 +17,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class Component implements Conf, Serializable {
+public abstract class Component implements Conf, Serializable {
     @Serial
     private static final long serialVersionUID = -4338706178283645146L;
     private static final String LOG_UNIT_ = "Component";
@@ -61,21 +61,27 @@ public class Component implements Conf, Serializable {
         this.addConfig(new Component.CP("id", id));
         setId_(id);
     }
+    public String getId(){return getId_();}
+    public String getCls(){return getCls_();}
     public void setCls(String cls) {
         this.addConfig(new Component.CP("cls", cls));
         setCls_(cls);
     }
+
     public void applyDefaultConfig() {
         setConfigs(new StringDictionary());
         setId_(genId());
-        getConfigs().put((String) "id", new Component.CP("id", getId_()));
-        getConfigs().put((String) "cls", new Component.CP("cls", getCls_()));
-        getConfigs().put((String) "xtype", new Component.CP("xtype", this.getXtype()));
-        getConfigs().put((String) "labelWidth", C.labelWidth(LABEL_WIDTH));
+        getConfigs().put("id", new Component.CP("id", getId_()));
+        getConfigs().put("cls", new Component.CP("cls", getCls_()));
+        getConfigs().put("xtype", new Component.CP("xtype", this.getXType()));
+        getConfigs().put("labelWidth", C.labelWidth(LABEL_WIDTH));
     }
+
+    public abstract String getXType();
+
     public Component addConfig(Conf... configs) {
         for (Conf config : configs) {
-            getConfigs().put((String) config.getKey(), config);
+            getConfigs().put(config.getKey(), config);
             if (config.getKey().equals("id")) {
                 setId_(config.getValue().toString());
             } else if (config.getKey().equals("cls")) {
@@ -103,7 +109,7 @@ public class Component implements Conf, Serializable {
         getListeners().add(listener);
         Conf config = getConfigs().get("gListeners");
         if (config == null) {
-            config = new Component.CPL("gListeners", new Conf[]{new Component.CP(listener.name, listener.fn), new Component.CPB("hasTarget", listener.hasTarget)});
+            config = new Component.CPL("gListeners", new Component.CP(listener.name, listener.fn), new Component.CPB("hasTarget", listener.hasTarget));
             addConfig(config);
         } else {
             ((StringDictionary) config.getValue()).put((String) listener.name, new Component.CP(listener.name, listener.fn));
@@ -117,6 +123,10 @@ public class Component implements Conf, Serializable {
 
     public String getIcon() {
         return "sources/assets/icons/component.png";
+    }
+
+    public boolean isContainsTitle() {
+        return getConfigs().containsKey("title");
     }
 
     public static JsonElement getJson(Object o) {
@@ -152,7 +162,7 @@ public class Component implements Conf, Serializable {
 
         if (o instanceof StringDictionary) {
             JsonObject output = new JsonObject();
-            StringDictionary<?> sd = (StringDictionary<?>) o;
+            StringDictionary<?> sd = (StringDictionary) o;
             for (Object oo : sd.values()) {
                 Conf conf = (Conf) oo;
                 Object value = conf.getValue();

@@ -34,6 +34,9 @@ public class Container extends Component{
             _registerComponents(c);
         }
     }
+    public List<Component> getComponents() {
+        return getComponents_();
+    }
 
     private void _registerComponents(Conf c) {
         Object o = c.getValue();
@@ -74,7 +77,7 @@ public class Container extends Component{
             items = (Component.CPA)configs.get("items");
         } else {
             items = new Component.CPA("items", new Conf[0]);
-            addConfig(new Conf[]{items});
+            addConfig(items);
         }
         items.add(component);
         return this;
@@ -82,7 +85,7 @@ public class Container extends Component{
     
     public Component addService(Class<? extends MapService> cls) {
         setService_(cls.getName());
-        addConfig(new Conf[]{new Component.CP("service", getService_())});
+        addConfig(new CP("service", getService_()));
         return this;
     }
 
@@ -93,7 +96,7 @@ public class Container extends Component{
             dockedItems = (Component.CPA)configs.get("dockedItems");
         } else {
             dockedItems = new Component.CPA("dockedItems", new Conf[0]);
-            addConfig(new Conf[]{dockedItems});
+            addConfig(dockedItems);
         }
         dockedItems.add(component);
     }

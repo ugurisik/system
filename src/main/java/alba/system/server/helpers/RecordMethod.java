@@ -1,5 +1,6 @@
 package alba.system.server.helpers;
 
+import alba.system.server.components.WindowForm;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.Setter;
@@ -15,7 +16,7 @@ public class RecordMethod implements Serializable {
     @SerializedName("name")
     public String name = "";
     public String title = "";
-    //public Class<? extends WindowForm> WindowForm;
+    public Class<? extends alba.system.server.components.WindowForm> WindowForm;
     @Expose
     @SerializedName("arguments")
     public RecordArgument.RecordArgumentList argumentList = new RecordArgument.RecordArgumentList();

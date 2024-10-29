@@ -3,7 +3,6 @@ package alba.system.server.core;
 import alba.system.server.utils.Logger;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpMessage;

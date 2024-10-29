@@ -1,9 +1,11 @@
 package alba.system.server.core;
 
 import alba.system.server.ServerManagment;
+import alba.system.server.components.WindowForm;
 import alba.system.server.utils.Enums;
 import alba.system.server.utils.Logger;
-import alba.system.server.utils.ServerUtility;
+import alba.system.server.core.ServerUtility;
+import alba.system.server.utils.ModuleUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -178,19 +180,6 @@ public class ConnectionCore {
                     } else {
                         output = SuResponse.getGSON().toJson(response.getForm());
                     }
-                  /*  ServerObject sInput = new ServerObject();
-                    sInput.args = new String[]{action};
-                    sInput.memory = mem;
-                    sInputs.put((String) "ARGS", sInput);
-                    SuResponse response = MapService.call(oMsg.get("cls").getAsString(), action, sInputs);
-                    ServerUtility.clearMemory();
-                    if (response.getForm() == null) {
-                        Translateable.translateAll(response);
-                        output = SuResponse.getGSON().toJson(response);
-                    } else {
-                        output = SuResponse.getGSON().toJson(response.getForm());
-                    }*/
-                    //  output = "E005:INeedSomething!";
                 }
             } else {
                 String[] args = _getArgs(message);
@@ -248,7 +237,7 @@ public class ConnectionCore {
                                     sArgs[k - 3] = args[k];
                                 }
 
-                             /*   ServerObject sInput = new ServerObject();
+                               ServerObject sInput = new ServerObject();
                                 sInput.args = sArgs;
                                 sInput.memory = ServerUtility.getMemory();
                                 mem.put((String) "ARGS", sInput);
@@ -258,7 +247,7 @@ public class ConnectionCore {
                                     output = SuResponse.getGSON().toJson(response);
                                 } else {
                                     output = SuResponse.getGSON().toJson(response.getForm());
-                                }*/
+                                }
                                 output = "E003:INeedMore!";
                             } else {
                                 output = "E003:INeedMore!";
@@ -266,31 +255,30 @@ public class ConnectionCore {
                         } else if (args[0].equals("form")) {
                             mem = ServerUtility.getMemory();
                             if (args.length > 1) {
-                                //   WindowForm form;
+                                   WindowForm form;
                                 if (args[1].equals("activate")) {
                                     if (args.length > 2) {
-                                      /*  form = WindowForm.getFormByUuid(args[2]);
+                                        form = WindowForm.getFormByUuid(args[2]);
                                         if (form != null) {
                                             ServerUtility.setForm(form);
                                             output = "Activated.";
                                         } else {
                                             output = "E504:FormNotFound!";
-                                        }*/
+                                        }
                                         output = "E504:FormNotFound!";
                                     } else {
                                         output = "E005:INeedNameAndValue!";
                                     }
                                 } else if (args[1].equals("set")) {
                                     if (args.length > 4) {
-                                        /*form = ServerUtility.getForm();
+                                        form = ServerUtility.getForm();
                                         if (form == null) {
                                             output = "E502:NotEnoughParameters!";
                                         } else if (form.setComponent(args[2], args[3], args[4])) {
                                             output = "Set.";
                                         } else {
                                             output = "E507:ComponentNotSet!";
-                                        }*/
-                                        output = "E507:ComponentNotSet!";
+                                        }
                                     } else {
                                         output = "E004:INeedMore!";
                                     }
@@ -335,9 +323,13 @@ public class ConnectionCore {
                 messages++;
                 messageCount = 0;
             }
-            if ((messages * 10) % 200 == 0) {
+            if ((messages * 20) % 200 == 0) {
                 Logger.Info("Clearing console", true);
                 Logger.clearConsole();
+                WSUpdateCore.Payload p = new WSUpdateCore.Payload();
+                p.messages.add(ModuleUtils.errorMessage("testtt","testt"));
+                WSUpdateCore.pumpAll(p);
+
             }
             return messageId != null ? "MID:" + messageId + " " + output : output;
         } catch (Exception e) {
@@ -560,7 +552,7 @@ public class ConnectionCore {
                 if (cookies.containsKey("ALBAN")) {
                     SessionCore changedContext = SessionCore.change(cookies.get("ALBAN"));
                     if (changedContext == null) {
-                        this.closeConnection("Cannot change session context for session id: " + cookies.get("ARKS"));
+                        this.closeConnection("Cannot change session context for session id: " + cookies.get("ALBAN"));
                         return;
                     }
                 }

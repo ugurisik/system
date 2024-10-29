@@ -12293,6 +12293,12 @@ Ext.define('UGRFrontend.desktop.GTTextField', {
         if (c.listeners == null) {
             c.listeners = {};
         }
+        console.log(c)
+        if(c.width !== null && c.width !== undefined){
+            console.log("comp width:"+c.width);
+            //this.setCmpWidth(c.width)
+            this.setWidth(c.width)
+        }
 
         if (c.gListeners != null) {
             for (var name in c.gListeners) {
@@ -13608,7 +13614,7 @@ Ext.define('UGRFrontend.net.WsConnector', {
     changeContext: function () {
         var me = this;
 
-        var cookie = me.getCookie('ARKS');
+        var cookie = me.getCookie('ALBAN');
         if (cookie != null) {
             var params = {
                 cls: 'alba.system.projects.sys.services.auth.LoginService',
@@ -13811,23 +13817,44 @@ Ext.define('UGRFrontend.desktop.Desktop', {
 
     onReceive: function (msg) {
         var me = this;
-        if (msg.substring(0, 1) == '+') {
+        if (msg.substring(0, 1) === '+') {
             var messages = Ext.decode(msg.substring(1));
             if (Ext.isArray(messages)) {
                 for (var m = 0; m < messages.length; m++) {
                     var message = messages[m];
-                    var channel = message.origin.channel;
-                    if (me.channelSubscriptions[channel] != null) {
-                        for (var k = 0; k < me.channelSubscriptions[channel].length; k++) {
-                            var channelSubscription = me.channelSubscriptions[channel][k];
-                            if (channelSubscription != null) {
-                                try {
-                                    Ext.callback(channelSubscription.callBack, channelSubscription.scope, [message]);
-                                } catch (err) {
-                                    alert('Dynamic update callback error: ' + err);
+                    if(message.origin !== undefined){
+                        var channel = message.origin.channel;
+                        if (me.channelSubscriptions[channel] != null) {
+                            for (var k = 0; k < me.channelSubscriptions[channel].length; k++) {
+                                var channelSubscription = me.channelSubscriptions[channel][k];
+                                if (channelSubscription != null) {
+                                    try {
+                                        Ext.callback(channelSubscription.callBack, channelSubscription.scope, [message]);
+                                    } catch (err) {
+                                        alert('Dynamic update callback error: ' + err);
+                                    }
                                 }
                             }
                         }
+                    }
+                    console.log(message);
+                    if(message.messages.length > 0){
+                        var mm = message.messages[0];
+                        var Msg = Ext.Msg;
+                        Msg.show({
+                            title: mm.title,
+                            msg: mm.message,
+                            modal: true,
+                            buttons: Msg.OK,
+                            icon: Msg.INFO,
+                            width: 300,
+                            fn: Ext.emptyFn,
+                            x:10,
+                            y:10
+                        });
+                        setTimeout(function () {
+                            Msg.close();
+                        }, 5000);
                     }
 
                     if (message.changes != null) {
@@ -14176,7 +14203,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         };
 
         // { key: 'lang', value: lang }
-        var langCookie = me.config.wsocket.getCookie('ARKL');
+        var langCookie = me.config.wsocket.getCookie('ALBAL');
         if (langCookie != null && langCookie != 'undefined') {
             me.language = langCookie;
             Ext.getCmp('tray-language-menu').setActiveItem(Ext.getCmp('tray-language-menu-' + langCookie), true);
@@ -14308,7 +14335,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         });
 
         me.subscribe({
-            name: 'private.session.' + me.config.wsocket.getCookie('ARKS'),
+            name: 'private.session.' + me.config.wsocket.getCookie('ALBAN'),
             callBack: function (msg) {
                 if (msg.fn == "logout") {
                     me.onLogout({});

@@ -2,7 +2,7 @@ package alba.system.server.core;
 
 import alba.system.server.utils.Enums;
 import alba.system.server.utils.Logger;
-import alba.system.server.utils.ServerUtility;
+import alba.system.server.core.ServerUtility;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;

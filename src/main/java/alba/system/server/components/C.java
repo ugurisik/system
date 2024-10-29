@@ -1,7 +1,7 @@
 package alba.system.server.components;
 
 import alba.system.server.helpers.StyleSheet;
-import alba.system.server.utils.ServerUtility;
+import alba.system.server.core.ServerUtility;
 
 public class C {
     public static Component.CP id(String id) {
@@ -59,6 +59,18 @@ public class C {
         return new Component.CPT("fieldLabel", labelKey);
     }
 
+    public static Component.CPB booleanData(String key, boolean val){
+        return new Component.CPB(key, val);
+    }
+
+    public static Component.CPT stringData(String key, String val){
+        return new Component.CPT(key, val);
+    }
+
+    public static Component.CPI integerData(String key, int val){
+        return new Component.CPI(key, val);
+    }
+
     public static Component.CPI bodyPadding(int padding) {
         return new Component.CPI("bodyPadding", padding);
     }
@@ -99,9 +111,24 @@ public class C {
         return new Component.CPI("labelWidth", labelWidth);
     }
 
+    public static Tab tab(Conf... items) {
+        return new Tab(items);
+    }
+
+    public static Panel panel(Conf... items) {
+        return new Panel(items);
+    }
+
     // TODO:: Change to Translatable
     public static Conf text(String text, boolean text_is_translateable) {
         return (Conf)(text_is_translateable ? new Component.CPT("text", text) : new Component.CP("text", text));
+    }
+    public static Conf text(String text) {
+        return new Component.CP("text", text);
+    }
+
+    public static Conf src(String src) {
+        return new Component.CPT("src", src);
     }
 
     public static Component.CP iconFolder(String iconFolder) {
@@ -321,8 +348,8 @@ public class C {
             return lockUntilResponse(true);
         }
 
-        public static Component.CPT lockMessage(String translateable) {
-            return new Component.CPT("lockMessage", translateable);
+        public static Component.CPT lockMessage(String message) {
+            return new Component.CPT("lockMessage", message);
         }
 
         public static class Column {

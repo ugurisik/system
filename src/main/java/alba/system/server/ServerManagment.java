@@ -17,6 +17,7 @@ public class ServerManagment {
     private static final ArrayList<ServerManagment.BeforeStartEvents> startEventList = new ArrayList<>();
     private static final ArrayList<ServerManagment.UpdateEvents> updateEventList = new ArrayList<>();
     protected static ConnectionCore connectionCore;
+    public static String VERSION = "5.0.0";
 
     public static ConnectionCore getConnectionHandler() {
         return connectionCore;

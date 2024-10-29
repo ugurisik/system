@@ -3,7 +3,12 @@ package alba.system.server.helpers;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.Setter;
 
+
+@Getter
+@Setter
 public class FormChange {
     private static final long serialVersionUID = -8901341665970050178L;
     @Expose
@@ -35,12 +40,12 @@ public class FormChange {
     }
 
     public FormChange(String formUuid, String id, String key, Object value) {
-        this.formUuid = formUuid;
-        this.key = key;
-        this.value = value;
-        this.id = id;
+        setFormUuid(formUuid);
+        setKey(key);
+        setValue(value);
+        setId(id);
         if (value instanceof JsonElement) {
-            this.jValue = (JsonElement) value;
+            setJValue((JsonElement) value);
         }
 
     }

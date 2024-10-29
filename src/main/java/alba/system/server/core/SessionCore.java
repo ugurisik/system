@@ -1,5 +1,9 @@
 package alba.system.server.core;
 
+import alba.system.projects.sys.record.User;
+import alba.system.server.helpers.NameValuePair;
+import alba.system.server.utils.Logger;
+import alba.system.server.utils.ModuleUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,62 +11,44 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.*;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.concurrent.CopyOnWriteArrayList;
 @Getter
 @Setter
 public class SessionCore {
     private static final String LOG_UNIT = "SessionContext";
-    private static ArrayList<SessionCore> sessions = new ArrayList<>();
-    private String client = "desktop";
-    private long threadID;
-    private String sessionID;
-    //private HibernateCore hibernateHandler;
-    private ConnectionCore.ClientHandler clientHandler;
+    private static List<SessionCore> _sessions = new CopyOnWriteArrayList<>();
+    private String _client = "desktop";
+    private long _threadID;
+    private String _sessionID;
+    private HibernateCore _hibernateHandler;
+    private ConnectionCore.ClientHandler _clientHandler;
     private boolean isGhost = false;
-    private boolean isAlive = true;
-    //private ArkUser user;
+    private boolean _isAlive = true;
+    private User _user;
 
-
-    private SessionCore(String sessionID) {
-        setSessionID(sessionID);
-        setThreadID(Thread.currentThread().threadId());
+    public boolean isAlive() {
+        return this._isAlive;
     }
 
-    public static SessionCore start(String sessionID){
+    public void setAlive(boolean alive) {
+        this._isAlive = alive;
+    }
+
+    private SessionCore(String sessionID) {
+        this._sessionID = sessionID;
+        this._threadID = Thread.currentThread().getId();
+        this._hibernateHandler = new HibernateCore();
+    }
+
+    public static SessionCore start(String sessionID) {
         SessionCore sc = getCurrentContext();
-        sc.setSessionID(sessionID);
+        sc._sessionID = sessionID;
         return sc;
     }
 
-    public static SessionCore getCurrentContext() {
-        return getCurrentContext(true);
-    }
-
-    public static SessionCore getCurrentContext(boolean createNew) {
-        Thread cThread = Thread.currentThread();
-        long cThreadID;
-        if (cThread instanceof ConnectionCore.ExtendedThread) {
-            cThreadID = ((ConnectionCore.ExtendedThread) cThread).uHandler.parent.threadId();
-        } else {
-            cThreadID = Thread.currentThread().threadId();
-        }
-
-        for(int k = 0; k < sessions.size(); ++k) {
-            SessionCore sc = (SessionCore)sessions.get(k);
-            if (sc != null && cThreadID == sc.getThreadID()) {
-                return sc;
-            }
-        }
-
-        if (createNew) {
-            SessionCore sc = new SessionCore(UUID.randomUUID().toString());
-           // sc._hibernateHandler = new HibernateCore();
-            sessions.add(sc);
-            return sc;
-        } else {
-            return null;
-        }
-    }
     public static SessionCore change(String sessionID) {
         return change(sessionID, true);
     }
@@ -74,89 +60,134 @@ public class SessionCore {
             if (deleteOldSession && oldsc != null) {
                 removeSession(oldsc);
             }
-            sc.setSessionID(sessionID);
+
+            sc._sessionID = sessionID;
             if (oldsc != null) {
-               // sc.setUser(oldsc.getUser());
+                sc.setUser(oldsc.getUser());
                 oldsc.setAlive(false);
             }
+
             sc.setAlive(true);
             return sc;
-        } else {
-            return null;
         }
+        return null;
     }
+
     public static SessionCore cloneToGhostSilently(String sessionID) {
         if (sessionID.length() == 36) {
             SessionCore oldsc = find(sessionID);
             SessionCore sc = getCurrentContext();
             if (oldsc != null) {
-                //sc.setUser(oldsc.getUser());
+                sc.setUser(oldsc.getUser());
             }
 
             sc.setGhost(true);
             return sc;
-        } else {
-            return null;
-        }
-    }
-
-  /*  public static List<SessionCore> getUserContexts(ArkUser user) {
-        ArrayList<SessionCore> output = new ArrayList();
-        Iterator var3 = _sessions.iterator();
-
-        while(var3.hasNext()) {
-            SessionCore sc = (SessionCore)var3.next();
-            if (sc.getUser() != null && Arrays.equals(sc.getUser().getUserPK(), user.getUserPK())) {
-                output.add(sc);
-            }
-        }
-
-        return output;
-    }*/
-
-    public static SessionCore find(String sessionId) {
-        try{
-            for (SessionCore sc : sessions) {
-                if (sc.getSessionID().equals(sessionId)) {
-                    return sc;
-                }
-            }
-        }catch (Exception e){
-            return null;
         }
         return null;
     }
 
-   /* public static SessionCore findUserContext(ArkUser user) {
-        Iterator var2 = sessions.iterator();
+    public static SessionCore getCurrentContext() {
+        return getCurrentContext(true);
+    }
 
-        SessionCore sc;
-        do {
-            if (!var2.hasNext()) {
-                return null;
-            }
+    public static SessionCore getCurrentContext(boolean createNew) {
+        Thread cThread = Thread.currentThread();
+        long cThreadID = cThread instanceof ConnectionCore.ExtendedThread
+                ? ((ConnectionCore.ExtendedThread) cThread).uHandler.parent.getId()
+                : cThread.getId();
 
-            sc = (SessionCore)var2.next();
-        } while(sc.getUser() == null || !Arrays.equals(sc.getUser().getUserPK(), user.getUserPK()));
+        return _sessions.stream()
+                .filter(sc -> sc._threadID == cThreadID)
+                .findFirst()
+                .orElseGet(() -> createNew ? createNewSession() : null);
+    }
 
+    private static SessionCore createNewSession() {
+        SessionCore sc = new SessionCore(UUID.randomUUID().toString());
+        _sessions.add(sc);
         return sc;
-    }*/
+    }
+
+    public String getSessionID() {
+        return this._sessionID;
+    }
+
+    public ConnectionCore.ClientHandler getClientHandler() {
+        return this._clientHandler;
+    }
+
+    public void setClientHandler(ConnectionCore.ClientHandler handler) {
+        this._clientHandler = handler;
+    }
+
+    public static List<SessionCore> getUserContexts(User user) {
+        return _sessions.stream()
+                .filter(sc -> sc.getUser() != null && Arrays.equals(sc.getUser().getUserPK(), user.getUserPK()))
+                .collect(Collectors.toList());
+    }
+
+    public static SessionCore find(String sessionId) {
+        return _sessions.stream()
+                .filter(sc -> sc.getSessionID().equals(sessionId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static SessionCore findUserContext(User user) {
+        return _sessions.stream()
+                .filter(sc -> sc.getUser() != null && Arrays.equals(sc.getUser().getUserPK(), user.getUserPK()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public HibernateCore getHibernateHandler() {
+        return this._hibernateHandler;
+    }
+
+    public User getUser() {
+        return this._user;
+    }
+
+    public void setUser(User user) {
+        this._client = ServerUtility.getParameter("client").isEmpty() ? "desktop" : ServerUtility.getParameter("client");
+        this._user = user;
+    }
 
     public static List<SessionCore> getSessions() {
-        return sessions;
+        return _sessions;
     }
-    public static void removeSession(SessionCore session) {
-        System.out.println("Removing session with SessionID: " + session.getSessionID());
-        ArrayList<SessionCore> scs = new ArrayList();
 
-        for (SessionCore sc : sessions) {
-            if (!sc.getSessionID().equals(session.getSessionID())) {
-                scs.add(sc);
-            } else {
-                //  sc._hibernateHandler.commit();
-            }
-        }
-        sessions = scs;
+    public static void removeSession(SessionCore session) {
+        Logger.Info("RemoveSession.Removing Ghost session: " + session._sessionID,true);
+        _sessions.removeIf(sc -> sc._sessionID.equals(session._sessionID));
+        session._hibernateHandler.commitMain();
+    }
+
+    public void removeSession() {
+        Logger.Info("RemoveSession.Removing Ghost session: " + this._sessionID,true);
+        _sessions.removeIf(sc -> sc._sessionID.equals(this._sessionID));
+        this._hibernateHandler.commitMain();
+    }
+
+    public static void runAsyncJob(final AsyncJob job) {
+        String sessionID = getCurrentContext().getSessionID();
+        CompletableFuture.runAsync(() -> {
+            SessionCore.change(sessionID, false);
+            job.run();
+        });
+    }
+
+    public boolean isGhost() {
+        return this.isGhost;
+    }
+
+    public void setGhost(boolean isGhost) {
+        this.isGhost = isGhost;
+    }
+
+    public abstract static class AsyncJob {
+        public abstract SuResponse run();
     }
 
     public static class SessionContextCacheObject implements Serializable {
@@ -164,16 +195,15 @@ public class SessionCore {
         public byte[] userPK;
         public String sessionId;
 
-        public static SessionCore.SessionContextCacheObject deserialize(byte[] binaryData) {
-            try {
-                ByteArrayInputStream input = new ByteArrayInputStream(binaryData);
-                ObjectInputStream stream = new ObjectInputStream(input);
-                return (SessionCore.SessionContextCacheObject)stream.readObject();
+        public static SessionContextCacheObject deserialize(byte[] binaryData) {
+            try (ByteArrayInputStream input = new ByteArrayInputStream(binaryData);
+                 ObjectInputStream stream = new ObjectInputStream(input)) {
+                return (SessionContextCacheObject) stream.readObject();
             } catch (Exception e) {
-                System.out.println("Can not deserialize object. Reason: " + e.getMessage());
+                Logger.Error(e,"Deserialize.Cannot deserialize object",true);
                 return null;
             }
         }
     }
-
 }
+

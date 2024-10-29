@@ -1,5 +1,6 @@
 package alba.system.server.helpers;
 
+import alba.system.server.components.ComboAdapter;
 import alba.system.server.utils.Enums;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

@@ -99,11 +99,15 @@ public class Logger {
         deep(ANSI_RED + " <- E -> " + ANSI_RESET, message, saveLog,"E");
     }
 
+    public static void Error(Exception e) {
+        Error(e, true);
+    }
+
     public static void Error(Exception e, Boolean saveLog) {
         String errorMessage = e.getClass().getName() + ": " + e.getMessage();
         StackTraceElement[] stackTrace = e.getStackTrace();
         for (StackTraceElement element : stackTrace) {
-            if (element.getClassName().startsWith("alba.pos")) {
+            if (element.getClassName().startsWith("alba.system")) {
                 errorMessage += " at " + element.getClassName() + "." + element.getMethodName() + "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
                 break;
             }
@@ -115,7 +119,7 @@ public class Logger {
         String errorMessage = e.getClass().getName() + ": " + e.getMessage();
         StackTraceElement[] stackTrace = e.getStackTrace();
         for (StackTraceElement element : stackTrace) {
-            if (element.getClassName().startsWith("alba.pos")) {
+            if (element.getClassName().startsWith("alba.system")) {
                 errorMessage += " at " + element.getClassName() + "." + element.getMethodName() + "(" + element.getFileName() + ":" + element.getLineNumber() + ")";
                 break;
             }

@@ -1,6 +1,7 @@
 package alba.system;
 
 import alba.system.server.ServerManagment;
+import alba.system.server.core.HibernateCore;
 import alba.system.server.core.UpdateCore;
 import alba.system.server.utils.Logger;
 import org.springframework.boot.SpringApplication;
@@ -14,8 +15,10 @@ import java.time.format.DateTimeFormatter;
 @SpringBootApplication
 public class SystemApplication {
 
+	public static int USERCOOKIEDAY = 1;
 	public static String secretKey = "K3DK9SZ3";
 	public static String projects = "canteen;facility";
+	public static String DEFAULT_LANGUAGE = "TR-TR";
 	public static final String startTime = System.getProperty("user.dir")+"\\log\\info\\"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 	public static void main(String[] args) {
 		SpringApplication.run(SystemApplication.class, args);
@@ -26,6 +29,13 @@ public class SystemApplication {
 			Logger.setWriter(writer, startTime + ".userlog");
 		} catch (Exception e) {
 			System.out.println("Hata: " + e.getMessage());
+		}
+
+		try {
+			HibernateCore hibernateCore = new HibernateCore();
+			hibernateCore.configure(new HibernateCore.DatabaseConnection("3306","localhost","stkv2","stk2022","stk","com.mysql.cj.jdbc.Driver"));
+		}catch (Exception e){
+			Logger.Error(e, true);
 		}
 
 		ServerManagment.addStartEvent(new ServerManagment.BeforeStartEvents() {

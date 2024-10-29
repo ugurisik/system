@@ -1,5 +1,6 @@
 package alba.system.server.helpers;
 
+import alba.system.server.components.ComboAdapter;
 import alba.system.server.core.StringDictionary;
 import alba.system.server.core.SuRecord;
 import com.google.gson.annotations.Expose;
@@ -27,6 +28,7 @@ public class SuField implements Serializable {
     @Expose
     @SerializedName("type")
     public SuField.FT fieldType;
+
     public ComboAdapter comboAdapter;
     public Class<?> service;
     public String searchArgs;
@@ -41,7 +43,7 @@ public class SuField implements Serializable {
     public SuField.DT displayAs;
     public String fetchFrom;
     public SuField.FieldRelation relation;
-    public StringDictionary path;
+    public StringDictionary<List<SuField>> path;
     @Getter
     private StringDictionary<SuField.LanguageColumn> languageColumns;
 

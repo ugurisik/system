@@ -267,11 +267,11 @@ public class SuResponse {
         this._cookies = cookies;
     }
 
-   /* public void setListResult(ObjectCore.ListResult result) {
+    public void setListResult(ObjectCore.ListResult result) {
         this._rows = result.rows;
         this._totalRows = result.numTotal;
         this._dateFormat = result.dateFormat;
-    }*/
+    }
 
     public List<SuResponse.ToolTip> getToolTips() {
         return this._toolTips;
