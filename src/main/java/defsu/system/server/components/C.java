@@ -118,7 +118,6 @@ public class C {
     public static Panel panel(Conf... items) {
         return new Panel(items);
     }
-
     // TODO:: Change to Translatable
     public static Conf text(String text, boolean text_is_translateable) {
         return (Conf)(text_is_translateable ? new Component.CPT("text", text) : new Component.CP("text", text));
