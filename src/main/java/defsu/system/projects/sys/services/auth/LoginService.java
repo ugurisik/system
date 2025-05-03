@@ -13,6 +13,7 @@ import defsu.system.server.utils.Logger;
 
 import java.util.ArrayList;
 
+
 public class LoginService extends MapService {
     private static ArrayList<ServiceAbility> actions;
 
@@ -62,14 +63,11 @@ public class LoginService extends MapService {
                     if(mem.containsKey("@form")){
                         form = WindowForm.getFormByUuid(mem.get("@form"));
                     }
-
                     if(form != null && methodName != null){
                         response = WindowForm.invoke(form,methodName);
                     }else{
                         response = ObjectCore.invoke(User.class, mem);
                     }
-
-
                     return response;
                 }
             }));

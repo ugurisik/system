@@ -33,7 +33,8 @@ public class SystemApplication {
 
 		try {
 			HibernateCore hibernateCore = new HibernateCore();
-			hibernateCore.configure(new HibernateCore.DatabaseConnection("3306","localhost","stkv2","stk2022","stk","com.mysql.cj.jdbc.Driver"));
+			hibernateCore.configure(new HibernateCore.DatabaseConnection("3306","localhost","defsu","stk2022","stk","com.mysql.cj.jdbc.Driver"));
+
 		}catch (Exception e){
 			Logger.Error(e, true);
 		}

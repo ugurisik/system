@@ -27,6 +27,36 @@ public class Button extends Component{
         // Initialization logic (if any) goes here
     }
 
+    public Button id(String dName){
+        this.addConfig(new Component.CP("id", dName));
+        return this;
+    }
+
+    public Button x(int xVal){
+        this.addConfig(new Component.CPI("x", xVal));
+        return this;
+    }
+
+    public Button y(int yVal){
+        this.addConfig(new Component.CPI("y", yVal));
+        return this;
+    }
+
+    public Button width(int width){
+        this.addConfig(new Component.CPI("width", width));
+        return this;
+    }
+
+    public Button height(int width){
+        this.addConfig(new Component.CPI("height", width));
+        return this;
+    }
+
+    public Button text(String text){
+        this.addConfig(new Component.CP("text", text));
+        return this;
+    }
+
     @Override
     public String getXType() {
         return "mbutton";

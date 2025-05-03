@@ -33,6 +33,122 @@ public class Container extends Component{
             _registerComponents(c);
         }
     }
+
+    public Container absolute(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "absolute")}));
+        return this;
+    }
+
+    public Container fit(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "fit")}));
+        return this;
+    }
+
+    public Container border(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "border")}));
+        return this;
+    }
+
+    public Container accordion(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "accordion")}));
+        return this;
+    }
+
+    public Container anchor(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "anchor")}));
+        return this;
+    }
+
+    public Container hbox(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "hbox")}));
+        return this;
+    }
+
+    public Container vbox(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "vbox")}));
+        return this;
+    }
+
+    public Container form(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "form")}));
+        return this;
+    }
+
+    public Container column(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "column")}));
+        return this;
+    }
+
+    public Container table(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "table")}));
+        return this;
+    }
+
+    public Container card(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "card")}));
+        return this;
+    }
+
+    public Container tabpanel(){
+        this.addConfig(new Component.CPL("layout", new Conf[]{new Component.CP("type", "tabpanel")}));
+        return this;
+    }
+
+    public Container regionCenter(){
+        this.addConfig(new Component.CP("region", "center"));
+        return this;
+    }
+
+    public Container regionWest(){
+        this.addConfig(new Component.CP("region", "west"));
+        return this;
+    }
+
+    public Container regionEast(){
+        this.addConfig(new Component.CP("region", "east"));
+        return this;
+    }
+
+    public Container regionNorth(){
+        this.addConfig(new Component.CP("region", "north"));
+        return this;
+    }
+
+    public Container regionSouth(){
+        this.addConfig(new Component.CP("region", "south"));
+        return this;
+    }
+
+
+
+
+    public Container id(String dName){
+        this.addConfig(new Component.CP("id", dName));
+        return this;
+    }
+
+    public Container x(int xVal){
+        this.addConfig(new Component.CPI("x", xVal));
+        return this;
+    }
+
+    public Container y(int yVal){
+        this.addConfig(new Component.CPI("y", yVal));
+        return this;
+    }
+
+    public Container width(int width){
+        this.addConfig(new Component.CPI("width", width));
+        return this;
+    }
+
+    public Container height(int width){
+        this.addConfig(new Component.CPI("height", width));
+        return this;
+    }
+
+
+
     public List<Component> getComponents() {
         return getComponents_();
     }

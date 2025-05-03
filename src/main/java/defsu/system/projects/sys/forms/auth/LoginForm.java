@@ -14,7 +14,7 @@ import defsu.system.server.utils.Enums;
 import java.security.MessageDigest;
 
 public class LoginForm extends WindowForm {
-    public LoginForm(){
+    public LoginForm() {
         super(C.id("loginForm"),
                 C.title("Giriş Ekranı"),
                 C.width(300),
@@ -24,19 +24,20 @@ public class LoginForm extends WindowForm {
                 C.minimizable(false),
 
                 C.items(
-                        new Container(C.id("imageContainer"),C.height(100), C.Region.north(),C.Layout.absolute(), C.items(
-                                new Img(C.id("logo"), C.src("sources/assets/images/albatros.png"), C.x(45), C.y(10), C.Region.center(), C.width(200), C.height(75))
-                        )),
-                        new Container(C.id("inputContainer"), C.Layout.absolute(), C.width(275), C.items(
-                                new Text(C.id("username"), C.x(20), C.y(10), C.width(245),  C.stringData("emptyText","Kullanıcı Adınız..."), C.dataName("userName"), C.booleanData("allowBlank",false), C.stringData("blankText","Kullanıcı adı boş bırakılamaz"), C.Text.minLength(3), C.Text.minLengthText("Kullanıcı adı en az 3 karakter olmalıdır","3"), C.Text.maxLength(20), C.Text.maxLengthText("Kullanıcı adı en fazla 20 karakter olabilir","20")),
-                                new Text(C.id("password"), C.x(20), C.y(40), C.width(245), C.stringData("emptyText","Şifreniz..."), C.dataName("password"), C.booleanData("allowBlank",false), C.stringData("blankText","Şifre boş bırakılamaz"), C.Text.minLength(3), C.Text.minLengthText("Şifre en az 3 karakter olmalıdır","3"), C.Text.maxLength(20), C.Text.maxLengthText("Şifre en fazla 20 karakter olabilir","20"), C.stringData("inputType","password")),
-                                new Button(C.id("loginButton"), C.x(20), C.y(70), C.text("Giriş"), C.width(245)).addService(LoginService.class).addMethod((new User()).getField().methods.get("login")))
+                        new Container(C.items(
+                                new Img().id("logo").x(10).y(10).width(275).height(100).regionCenter().src("sources/assets/images/defsu.png")
+                        )).id("imageContainer").absolute().height(100).regionNorth(),
+                        new Container( C.items(
+                                new Text().id("username").x(20).y(10).width(245).emptyText("Kullanıcı Adınız...").dataName("userName").allowBlank(false).blankText("Kullanıcı adı boş bırakılamaz").minLength(3).minLengthText("Kullanıcı adı en az 3 karakter olmalıdır").maxLength(20).maxLengthText("Kullanıcı adı en fazla 20 karakter olabilir").inputType(Text.InputType.TEXT),
+                                new Text().id("password").x(20).y(40).width(245).emptyText("Şifreniz...").dataName("password").allowBlank(false).blankText("Şifre boş bırakılamaz").minLength(3).minLengthText("Şifre en az 3 karakter olmalıdır").maxLength(20).maxLengthText("Şifre en fazla 20 karakter olabilir").inputType(Text.InputType.PASSWORD),
+                                new Button().id("loginButton").text("Giriş").width(245).x(20).y(70).addService(LoginService.class).addMethod((new User()).getField().methods.get("login"))
                         )
+                        ).id("inputContainer").absolute().width(275)
                 )
         );
     }
 
-    public SuResponse login(LoginForm form){
+    public SuResponse login(LoginForm form) {
         SuResponse response = new SuResponse();
 
 

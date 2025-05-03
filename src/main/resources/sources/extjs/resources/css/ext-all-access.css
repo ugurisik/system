@@ -135,7 +135,7 @@ select {
     right: 0;
     bottom: 0;
     content: '';
-	background-image: url(/core/app/images/albatros.png) !important;
+	background-image: url(/sources/assets/images/defsu.png) !important;
 	background-repeat: no-repeat;
 	background-size: 100%;
 	width: 200px;
