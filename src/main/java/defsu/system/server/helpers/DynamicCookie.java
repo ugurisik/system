@@ -16,7 +16,7 @@ public class DynamicCookie {
     public int days;
 
     public DynamicCookie() {
-        this.name = "ALBAN";
+        this.name = "DEFSUN";
         this.value = SessionCore.getCurrentContext().getSessionID();
         this.days = 1;
     }

@@ -22,10 +22,74 @@ public class WSUpdateCore {
     private static List<WSUpdateCore.Channel> channels = new ArrayList();
     private static final Lock cleaningsLock = new ReentrantLock();
     private static boolean isCleaning = false;
+    /**
+     * Payload'ların saklanacağı maksimum süre (milisaniye cinsinden) - varsayılan 1 saat
+     */
+    private static final long MAX_PAYLOAD_AGE_MS = 3600000;
+    /**
+     * Son temizleme zamanı
+     */
+    private static long lastCleanupTime = System.currentTimeMillis();
+    /**
+     * Temizleme aralığı (milisaniye cinsinden) - varsayılan 10 dakika
+     */
+    private static final long CLEANUP_INTERVAL_MS = 600000;
+
+    /**
+     * Belirli bir süreden daha eski olan payload'ları tüm kanallardan temizler.
+     * Bu metod thread-safe olarak çalışır ve temizleme işlemi sırasında diğer işlemleri engellemez.
+     * 
+     * @param maxAgeMs Saklanacak maksimum payload yaşı (milisaniye cinsinden)
+     * @return Temizlenen payload sayısı
+     */
+    public static int cleanOldPayloads(long maxAgeMs) {
+        if (!cleaningsLock.tryLock()) {
+            return 0; // Başka bir thread zaten temizleme yapıyor
+        }
+        
+        try {
+            isCleaning = true;
+            int totalRemoved = 0;
+            Date threshold = new Date(System.currentTimeMillis() - maxAgeMs);
+            
+            for (WSUpdateCore.Channel channel : channels) {
+                int initialSize = channel._payloads.size();
+                channel._payloads.removeIf(p -> p.date.before(threshold));
+                int removed = initialSize - channel._payloads.size();
+                totalRemoved += removed;
+                
+                if (removed > 0) {
+                    logger.info("Removed " + removed + " old payloads from channel: " + channel.name);
+                }
+            }
+            
+            lastCleanupTime = System.currentTimeMillis();
+            return totalRemoved;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error during payload cleanup", e);
+            return 0;
+        } finally {
+            isCleaning = false;
+            cleaningsLock.unlock();
+        }
+    }
+    
+    /**
+     * Varsayılan yaş sınırı (MAX_PAYLOAD_AGE_MS) kullanarak eski payload'ları temizler.
+     * 
+     * @return Temizlenen payload sayısı
+     */
+    public static int cleanOldPayloads() {
+        return cleanOldPayloads(MAX_PAYLOAD_AGE_MS);
+    }
 
     public static List<WSUpdateCore.Payload> processQueue() {
         List<WSUpdateCore.Payload> output = new ArrayList<>();
         int cleanCount = 0;
+
+        if (System.currentTimeMillis() - lastCleanupTime > CLEANUP_INTERVAL_MS) {
+            cleanOldPayloads();
+        }
 
         while (isCleaning) {
             try {

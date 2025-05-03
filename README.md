@@ -1,4 +1,4 @@
-Java WebSocket ExtJS Application - ALBATROS
+Java WebSocket ExtJS Application - DEFSU
 
 
 

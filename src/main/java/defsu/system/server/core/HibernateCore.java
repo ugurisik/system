@@ -35,6 +35,15 @@ public class HibernateCore {
     @Getter
     @Setter
     private static DatabaseConnection mainDatabaseConnection = null;
+    
+    /**
+     * Session'ın açıldığı zamanı takip etmek için
+     */
+    private static long sessionCreationTime = 0;
+    /**
+     * Session'ın maksimum yaşam süresi (milisaniye cinsinden) - varsayılan 30 dakika
+     */
+    private static final long MAX_SESSION_AGE_MS = 30 * 60 * 1000;
 
     private static SessionFactory buildSessionFactory() {
         try {
@@ -90,7 +99,19 @@ public class HibernateCore {
                     return;
                 }
             }
+            
+            // Mevcut session açıksa önce kapatalım
+            if (getMainSession() != null && getMainSession().isOpen()) {
+                try {
+                    getMainSession().close();
+                } catch (Exception e) {
+                    Logger.Error( e,"Error closing existing session",true);
+                }
+            }
+            
+            // Yeni session açalım
             setMainSession(getMainSessionFactory().openSession());
+            sessionCreationTime = System.currentTimeMillis();
         }catch (Exception e){
             Logger.Error(e,true);
         }
@@ -99,13 +120,48 @@ public class HibernateCore {
         getMappingClasses().add(cls);
     }
 
+    /**
+     * Session'ın yaşını kontrol eder ve çok uzun süre açık kalmışsa yeniler.
+     * Bu metod, uzun süreli session'ların neden olabileceği bellek sızıntılarını önler.
+     */
+    public static void checkSessionAge() {
+        try {
+            // Session null ise veya kapalıysa yeni bir session aç
+            if (getMainSession() == null || !getMainSession().isOpen()) {
+                setMainSession(getMainSessionFactory().openSession());
+                sessionCreationTime = System.currentTimeMillis();
+                return;
+            }
+            
+            // Session çok uzun süre açık kalmışsa kapat ve yenisini aç
+            if (System.currentTimeMillis() - sessionCreationTime > MAX_SESSION_AGE_MS) {
+                Logger.Info("Refreshing long-running Hibernate session (age: " + 
+                           ((System.currentTimeMillis() - sessionCreationTime) / 1000) + " seconds)");
+                
+                try {
+                    if (getMainTransaction() != null && getMainTransaction().isActive()) {
+                        getMainTransaction().commit();
+                    }
+                    getMainSession().close();
+                } catch (Exception e) {
+                    Logger.Error( e,"Error closing old session", true);
+                }
+                
+                setMainSession(getMainSessionFactory().openSession());
+                sessionCreationTime = System.currentTimeMillis();
+            }
+        } catch (Exception e) {
+            Logger.Error( e,"Error in checkSessionAge", true);
+        }
+    }
+
     public static <T> boolean saveMain(T entity){
+        checkSessionAge();
         Transaction transaction = null;
         try (Session session = getMainSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.persist(entity);
             transaction.commit();
-            session.close();
             return true;
         } catch (Exception e) {
             if (transaction != null) {
@@ -117,6 +173,7 @@ public class HibernateCore {
     }
 
     public static <T> boolean updateMain(T entity) {
+        checkSessionAge();
         Transaction transaction = null;
         try (Session session = getMainSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -133,6 +190,7 @@ public class HibernateCore {
     }
 
     public static <T> boolean deleteMain(T entity) {
+        checkSessionAge();
         Transaction transaction = null;
         try (Session session = getMainSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -149,6 +207,7 @@ public class HibernateCore {
     }
 
     public static <T> T getMain(Class<T> clazz, byte[] id) {
+        checkSessionAge();
         try (Session session = getMainSessionFactory().openSession()) {
             return session.get(clazz, id);
         } catch (Exception e) {
@@ -158,6 +217,7 @@ public class HibernateCore {
     }
 
     public boolean commitMain() {
+       checkSessionAge();
        if(getMainTransaction() != null && getMainSession().isOpen()){
            try{
                getMainTransaction().commit();
@@ -178,13 +238,16 @@ public class HibernateCore {
     }
 
     public HibernateCriteriaBuilder getCriteriaBuilder(){
+        checkSessionAge();
         return getMainSessionFactory().getCriteriaBuilder();
     }
 
     public boolean beginTransaction(){
         try {
+            checkSessionAge();
             if(!getMainSession().isOpen()){
                 setMainSession(getMainSessionFactory().openSession());
+                sessionCreationTime = System.currentTimeMillis();
             }
             if(getMainSession().isOpen()){
                 setMainTransaction(getMainSession().beginTransaction());
@@ -217,5 +280,3 @@ public class HibernateCore {
         }
     }
 }
-
-

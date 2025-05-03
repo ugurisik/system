@@ -12905,7 +12905,7 @@ Ext.define('UGRFrontend.desktop.GenericModule', {
 
 /*!
  * UGRJS Library v.0.9
- * Copyright(c) 2024 ALBATROS
+ * Copyright(c) 2024 DEFSU
  * ugur.isik@alarmsansavunma.com.tr
   
  */
@@ -13619,7 +13619,7 @@ Ext.define('UGRFrontend.net.WsConnector', {
     changeContext: function () {
         var me = this;
 
-        var cookie = me.getCookie('ALBAN');
+        var cookie = me.getCookie('DEFSUN');
         if (cookie != null) {
             var params = {
                 cls: 'defsu.system.projects.sys.services.auth.LoginService',
@@ -14194,6 +14194,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
                     me.userName = userData['userName'].value;
                     me.userRealName = userData['userRealName'].value;
 
+
                     myDesktopApp.desktop.taskbar.startMenu.setTitle("Kullanıcı: " + me.userRealName);
 
                     me.loadShortcuts();
@@ -14208,7 +14209,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         };
 
         // { key: 'lang', value: lang }
-        var langCookie = me.config.wsocket.getCookie('ALBAL');
+        var langCookie = me.config.wsocket.getCookie('DEFSUL');
         if (langCookie != null && langCookie != 'undefined') {
             me.language = langCookie;
             Ext.getCmp('tray-language-menu').setActiveItem(Ext.getCmp('tray-language-menu-' + langCookie), true);
@@ -14340,7 +14341,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         });
 
         me.subscribe({
-            name: 'private.session.' + me.config.wsocket.getCookie('ALBAN'),
+            name: 'private.session.' + me.config.wsocket.getCookie('DEFSUN'),
             callBack: function (msg) {
                 if (msg.fn == "logout") {
                     me.onLogout({});

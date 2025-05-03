@@ -325,7 +325,7 @@ public class User extends MapUser implements SuRecord {
     private static SuResponse buildResponse() {
         SuResponse response = new SuResponse();
         response.setStatusCode("100");
-        response.getCookies().add(new DynamicCookie("ALBAL", ServerUtility.getParameter("lang"), 30));
+        response.getCookies().add(new DynamicCookie("DEFSUL", ServerUtility.getParameter("lang"), 30));
         return response;
     }
 
@@ -397,7 +397,7 @@ public class User extends MapUser implements SuRecord {
                         }
                         ServerUtility.setUser(this);
                         changePresence(new User.UserPresence(this));
-                        response.getCookies().add(new DynamicCookie("ALBAN", sc.getSessionID(), SystemApplication.USERCOOKIEDAY));
+                        response.getCookies().add(new DynamicCookie("DEFSUN", sc.getSessionID(), SystemApplication.USERCOOKIEDAY));
                         WSUpdateCore.Payload p = new WSUpdateCore.Payload();
                         p.fn = "login";
                         ArrayList<NameValuePair> customData = new ArrayList();

@@ -41,8 +41,8 @@ public class ConnectionCore {
     public static final String WEB_SOCKET_MAGIC_STRING = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
     public static final String WEB_SOCKET_RESPONSE = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade";
     public static final String WEB_SOCKET_COOKIE = "Set-Cookie: ";
-    public static final String WEB_SOCKET_COOKIE_NAME = "ALBAN";
-    public static final String WEB_SOCKET_COOKIE_LANG = "ALBAL";
+    public static final String WEB_SOCKET_COOKIE_NAME = "DEFSUN";
+    public static final String WEB_SOCKET_COOKIE_LANG = "DEFSUL";
     public static final String WEB_URI_KEY = "uri";
     private static final String LOG_UNIT = "ClientHolder";
     public static Socket _socket;
@@ -545,16 +545,16 @@ public class ConnectionCore {
                     }
                 }
 
-                if (cookies.containsKey("ALBAN")) {
-                    SessionCore changedContext = SessionCore.change(cookies.get("ALBAN"));
+                if (cookies.containsKey("DEFSUN")) {
+                    SessionCore changedContext = SessionCore.change(cookies.get("DEFSUN"));
                     if (changedContext == null) {
-                        this.closeConnection("Cannot change session context for session id: " + cookies.get("ALBAN"));
+                        this.closeConnection("Cannot change session context for session id: " + cookies.get("DEFSUN"));
                         return;
                     }
                 }
 
-                if (cookies.containsKey("ALBAL")) {
-                    ServerUtility.setParameter("lang", cookies.get("ALBAL"));
+                if (cookies.containsKey("DEFSUL")) {
+                    ServerUtility.setParameter("lang", cookies.get("DEFSUL"));
                 }
 
                 String key = httpMessage.getHeaders("Sec-WebSocket-Key")[0].getValue() + WEB_SOCKET_MAGIC_STRING;
