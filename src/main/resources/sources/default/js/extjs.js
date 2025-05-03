@@ -654,7 +654,13 @@ Ext.define('Ext.ux.desktop.Desktop', {
 				{
 					id: 'shortcutmenu-rename-editor',
 					xtype: 'textfield',
-					width: 120,
+                    placeholder: 'This is the first name',
+                    tooltip: {
+                        html: 'This is a tooltip',
+                        autoCreate: true,
+                        align: 'bl'
+                    },
+					width: 150,
 					listeners: {
 						specialkey: function(field, e){
 							// e.HOME, e.END, e.PAGE_UP, e.PAGE_DOWN,
@@ -2499,7 +2505,7 @@ Ext.define('MyDesktop.App', {
 	loginShortcutData: {
 		applicationModuleName: 'login',
 		applicationModuleIcon: 'gnome-lockscreen.png',
-		applicationModuleClass: 'alba.system.projects.sys.services.auth.LoginService',
+		applicationModuleClass: 'defsu.system.projects.sys.services.auth.LoginService',
 		userShortcutTitle: 'Giriş Yap',
 		userShortcutPosX : '50',
 		userShortcutPosY : '50'
@@ -2559,7 +2565,18 @@ Ext.define('MyDesktop.App', {
     // config for the start menu
     getStartConfig : function() {
         var me = this, ret = me.callParent();
-
+        var themeStore = Ext.create('Ext.data.Store', {
+            fields: ['name', 'value'],
+            data: [
+                { name: 'Gemlik', value: 'ext-all.css' },
+                { name: 'Kapadokya', value: 'ext-all-gray.css' },
+                { name: 'Tema 3', value: 'ext-ie.css' },
+                { name: 'Tema 4', value: 'ext-neptune.css' },
+                { name: 'Tema 5', value: 'ext-standart.css' },
+                { name: 'Neptün', value: 'theme-neptune.css' },
+                { name: 'Custom', value: 'theme-custom.css' }
+            ]
+        });
         return Ext.apply(ret, {
             title: '',
             iconCls: 'user',
@@ -2581,6 +2598,20 @@ Ext.define('MyDesktop.App', {
                         handler: me.onSettings,
                         scope: me
                     },
+                    {
+                        xtype: 'combobox',
+                        store: themeStore,
+                        displayField: 'name',
+                        valueField: 'value',
+                        queryMode: 'local',
+                        emptyText: 'Temalar',
+                        listeners: {
+                            change: function (combo, newValue) {
+                                // Tema değiştirme fonksiyonunu çağırın
+                                me.switchTheme(newValue);
+                            }
+                        }
+                    },
                     '-',
                     {
 						id: 'desktop-taskbar-btn-logout',
@@ -2588,7 +2619,8 @@ Ext.define('MyDesktop.App', {
                         iconCls:'logout',
                         handler: me.onLogout,
                         scope: me
-                    }
+                    },
+
                 ]
             }
         });
@@ -2601,17 +2633,19 @@ Ext.define('MyDesktop.App', {
 	switchStyle: function(){
 		myDesktopApp.changeStyle();
 	},
+
+
     getTaskbarConfig: function () {
         var ret = this.callParent();
 		var me = this;
 
         return Ext.apply(ret, {
             quickStart: [
-                { name: 'Stili Değiştir', iconCls: 'quickstart-shortcuts', fn: me.switchStyle, scope: me},
-                { name: 'Masaüstünü Göster', iconCls: 'quickstart-home', fn: me.showDesktop, scope: me }
+               /* { name: 'Stili Değiştir', iconCls: 'quickstart-shortcuts', fn: me.switchStyle, scope: me},*/
+                { name: 'Masaüstünü Göster', iconCls: 'quickstart-home', fn: me.showDesktop, scope: me },
             ],
 
-            trayItems: [
+            /*trayItems: [
                 {
                     xtype: 'text',
                     flex: 1,
@@ -2619,13 +2653,13 @@ Ext.define('MyDesktop.App', {
                     id: 'tray-facilityCode-text',
                     cls: 'tray-facilityCode-text'
                 },
-            ]
+            ]*/
 
 
-            /*
+
             trayItems: [
                 { xtype: 'trayclock', flex: 1 },
-				{
+				/*{
 					id : 'tray-language-menu',
 					xtype: "cycle",
 					showText: true,
@@ -2644,12 +2678,39 @@ Ext.define('MyDesktop.App', {
 										}
 									}
 								}
-							}
+							},
+                            {
+                                id: 'tray-language-menu-TR-TR2',
+                                xtype: "menucheckitem",
+                                text: "Türkçe2",
+                                langVal : "TR-TR",
+                                listeners: {
+                                    checkchange: function(item, checked) {
+                                        if ( checked ){
+                                            me.changeLanguage("TR-TR");
+                                        }
+                                    }
+                                }
+                            }
 						]
 					}
-				}
-            ]*/
+				}*/
+            ]
         });
+    },
+
+    switchTheme: function (theme) {
+        Ext.util.CSS.swapStyleSheet('theme', 'sources/extjs/resources/css/' + theme );
+        console.log("Tema değiştirildi: " + theme);
+        localStorage.setItem('selectedTheme', theme);
+    },
+
+    applySavedTheme: function () {
+        var savedTheme = localStorage.getItem('selectedTheme');
+        if (savedTheme) {
+            Ext.util.CSS.swapStyleSheet('theme', 'sources/extjs/resources/css/' + savedTheme);
+            console.log("Kaydedilmiş tema yüklendi: " + savedTheme);
+        }
     },
 
 	changeLanguage: function(lang){
@@ -2682,13 +2743,13 @@ Ext.define('MyDesktop.App', {
     },
     onSettings: function () {
 		UGRJS.Desktop.initiateModule({
-			cls: 'alba.system.projects.sys.services.auth.LoginService',
+			cls: 'defsu.system.projects.sys.services.auth.LoginService',
 			form: 'cp'
 		});
     },
     onPr: function () {
         UGRJS.Desktop.initiateModule({
-            cls: 'alba.system.projects.sys.services.auth.LoginService',
+            cls: 'defsu.system.projects.sys.services.auth.LoginService',
             form: 'pr'
         });
     },
@@ -2720,7 +2781,7 @@ Ext.define('MyDesktop.App', {
     },
 
 
-    getStyle: function(){
+    /* getStyle: function(){
         cname = "style";
         var name = cname + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
@@ -2735,11 +2796,11 @@ Ext.define('MyDesktop.App', {
             }
         }
         return "old";
-    },
+    }, */
 
-	selectedStyle: "old",
+	/*selectedStyle: "old",*/
 
-	changeStyle: function(){
+	/*changeStyle: function(){
 		var me = this;
 		// *** TO BE CUSTOMISED ***
 
@@ -2747,11 +2808,6 @@ Ext.define('MyDesktop.App', {
 		// You do not need to customise anything below this line
 
         console.log("Selected Style : " + this.selectedStyle);
-
-
-
-
-
 		if ( this.selectedStyle == 'old' ){
 			this.switch_style('new');
 			this.selectedStyle = 'new';
@@ -2763,9 +2819,9 @@ Ext.define('MyDesktop.App', {
 		}
 
 		me.desktop.redrawWindows();
-	},
+	},*/
 
-	switch_style: function( css_title ){
+	/*switch_style: function( css_title ){
 	// You may use this script on your site free of charge provided
 	// you do not remove this notice or the URL below. Script from
 	// http://www.thesitewizard.com/javascripts/change-style-sheets.shtml
@@ -2779,7 +2835,7 @@ Ext.define('MyDesktop.App', {
 		  }
 		}
 	  }
-	}
+	}*/
 });
 
 

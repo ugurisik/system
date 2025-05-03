@@ -12378,7 +12378,7 @@ Ext.define('UGRFrontend.desktop.GTTextField', {
                 function () {
                     if (me.id == 'login-text-password' || me.id == 'login-text-userName') {
                         UGRJS.Desktop.runMethod({
-                            cls: 'alba.system.projects.sys.services.auth.LoginService',
+                            cls: 'defsu.system.projects.sys.services.auth.LoginService',
                             method: 'login',
                             processResponse: true,
                             onSuccess: function (msg) {
@@ -13567,20 +13567,25 @@ Ext.define('UGRFrontend.net.WsConnector', {
         //     callBack: function,
         //     scope: object
         // }
-        me.request(
-            "form set \"" + params.componentId + "\" \"" + params.propertyName + "\" \"" + (params.value + '').replace(/"/g, '&quot;') + "\"", {
-                onResponse: function (msg) {
-                    if (msg == UGRFrontend.net.WsConnector.SET) {
-                        if (params.scope != null) {
-                            params.scope.sm_009 = params.callBack;
-                            params.scope.sm_009();
-                        } else {
-                            params.callBack();
+        if(params.propertyName === 'x' || params.propertyName === 'y' || params.propertyName === 'width' || params.propertyName === 'height'){
+
+        }else{
+            me.request(
+                "form set \"" + params.componentId + "\" \"" + params.propertyName + "\" \"" + (params.value + '').replace(/"/g, '&quot;') + "\"", {
+                    onResponse: function (msg) {
+                        if (msg == UGRFrontend.net.WsConnector.SET) {
+                            if (params.scope != null) {
+                                params.scope.sm_009 = params.callBack;
+                                params.scope.sm_009();
+                            } else {
+                                params.callBack();
+                            }
                         }
                     }
                 }
-            }
-        );
+            );
+        }
+
     },
 
     pumpToChannel: function (params) {
@@ -13617,7 +13622,7 @@ Ext.define('UGRFrontend.net.WsConnector', {
         var cookie = me.getCookie('ALBAN');
         if (cookie != null) {
             var params = {
-                cls: 'alba.system.projects.sys.services.auth.LoginService',
+                cls: 'defsu.system.projects.sys.services.auth.LoginService',
                 method: 'changeContext',
                 args: [{
                     key: 'sid',
@@ -14179,7 +14184,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         var me = this;
 
         var invokeParams = {
-            cls: 'alba.system.projects.sys.services.auth.LoginService',
+            cls: 'defsu.system.projects.sys.services.auth.LoginService',
             method: 'checkLogin',
             processResponse: true,
             onResponse: function (msg) {
@@ -14253,7 +14258,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         var me = this;
 
         UGRJS.Desktop.runMethod({
-            cls: 'alba.system.projects.sys.services.auth.LoginService',
+            cls: 'defsu.system.projects.sys.services.auth.LoginService',
             method: 'logout',
             onSuccess: function (result) {
                 me.onLogout(result);
@@ -14349,7 +14354,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         var me = this;
 
         me.config.wsocket.invoke({
-            cls: 'alba.system.projects.sys.services.auth.LoginService',
+            cls: 'defsu.system.projects.sys.services.auth.LoginService',
             method: 'getShortcuts',
             processResponse: false,
             onResponse: function (msg) {
@@ -14380,7 +14385,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         var me = this;
 
         me.config.wsocket.invoke({
-            cls: 'alba.system.projects.sys.services.auth.LoginService',
+            cls: 'defsu.system.projects.sys.services.auth.LoginService',
             method: 'getStartmenu',
             processResponse: false,
             onResponse: function (msg) {
@@ -14619,7 +14624,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
         var pTranslateables = keys.join(';');
 
         me.config.wsocket.invoke({
-            cls: 'alba.system.projects.sys.services.auth.LoginService',
+            cls: 'defsu.system.projects.sys.services.auth.LoginService',
             method: 'getTranslateables',
             args: [{
                 key: 'translateables',
