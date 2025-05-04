@@ -1,8 +1,7 @@
 package defsu.system.server.core;
 
-import defsu.system.server.maps.MapComponentstate;
-import defsu.system.server.maps.MapUser;
-import defsu.system.server.maps.MapUserlog;
+import defsu.system.projects.main.maps.MapAccount;
+import defsu.system.server.maps.*;
 import defsu.system.server.utils.Logger;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,6 +68,9 @@ public class HibernateCore {
         addMapping(MapUser.class);
         addMapping(MapComponentstate.class);
         addMapping(MapUserlog.class);
+        addMapping(MapAccount.class);
+        addMapping(MapTaxOffice.class);
+        addMapping(MapCity.class);
     }
 
     private void initialize(){

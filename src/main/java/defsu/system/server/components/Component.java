@@ -443,14 +443,78 @@ public abstract class Component implements Conf, Serializable {
         public String fn;
         public boolean hasTarget = false;
 
-        public ComponentListener(String name, String fn) {
-            setName(name);
+        public ComponentListener(Component.ListenerType name, String fn) {
+            setName(name.getValue());
             setFn(fn);
         }
 
         public Component.ComponentListener sendTarget(boolean sendTarget) {
             setHasTarget(sendTarget);
             return this;
+        }
+    }
+
+    public static enum ListenerType {
+        // Common Component Events
+        AFTERRENDER("afterrender"),
+        BEFORERENDER("beforerender"),
+        RENDER("render"),
+        CLICK("click"),
+        DBLCLICK("dblclick"),
+        MOUSEOVER("mouseover"),
+        MOUSEDOWN("mousedown"),
+        MOUSEUP("mouseup"),
+        MOUSEMOVE("mousemove"),
+        MOUSEENTER("mouseenter"),
+        MOUSELEAVE("mouseleave"),
+        HIDE("hide"),
+        SHOW("show"),
+
+        // List/Grid Specific Events
+        ITEMTAP("itemtap"),
+        ITEMDBLCLICK("itemdblclick"),
+        SELECT("select"),
+        BEFORESELECT("beforeselect"),
+        AFTERSELECT("afterselect"),
+        STOPEDIT("stopedit"),
+
+        // Form Field Events
+        BLUR("blur"),
+        AFTERBLUR("afterblur"),
+        FOCUS("focus"),
+        CHANGE("change"),
+        KEYDOWN("keydown"),
+        KEYPRESS("keypress"),
+        KEYUP("keyup"),
+        RESET("reset"),
+        SUBMIT("submit"),
+
+        // Container/Panel Events
+        RESIZE("resize"),
+
+        // Other Common Events
+        LOAD("load"),
+        ERROR("error"),
+        ABORT("abort"),
+        BEFOREHIDE("beforehide"),
+        BEFORESHOW("beforeshow"),
+        CONTEXTMENU("contextmenu"),
+        SCROLL("scroll"),
+        UNLOAD("unload");
+
+        private String value;
+
+        ListenerType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
         }
     }
 }

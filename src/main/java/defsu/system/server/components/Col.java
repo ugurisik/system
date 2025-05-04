@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 public class Col extends Component{
     @Serial
-    private static final long serialVersionUID = 7295383634379358977L;
+    private static final long serialVersionUID = 111111111111111111L;
     private List<Component> components_;
     private boolean editable = false;
 
@@ -32,6 +32,21 @@ public class Col extends Component{
             }
         }
         this.initialize();
+    }
+
+    public Col width(int width){
+        this.addConfig(new Component.CPI("width", width));
+        return this;
+    }
+
+    public Col text(String text){
+        this.addConfig(new Component.CP("text", text));
+        return this;
+    }
+
+    public Col dataIndex(String index){
+        this.addConfig(new Component.CP("dataIndex", index));
+        return this;
     }
 
     public Col setEditable(boolean editable) {

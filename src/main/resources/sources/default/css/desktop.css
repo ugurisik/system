@@ -54,13 +54,11 @@
 }
 
 #desktop-1009_wallpaper {
-    /* background-image: url(wallpapers/dark.jpg) !important; */
     background-color: #ececec !important;
-    background-image: url(/sources/assets/images/msb.png) !important;
+    background-image: url(/sources/assets/images/bg.jpg) !important;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 35%;
-    opacity: 0.7;
+    background-size: cover;
 }
 
 #desktop-1009_wallpaper::after {

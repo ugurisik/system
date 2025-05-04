@@ -48,6 +48,7 @@ public class WindowForm extends Window{
     private void initialize() {
         this.addConfig(new Conf[]{new Component.CP("uuid", getUuid())});
         this.addConfig(new Conf[]{this.tools});
+        this.addConfig(new Conf[]{new Component.CPT("cls", "form-row")});
     }
     public String getUuid() {
         if (getUuid_() == null) {
@@ -55,6 +56,9 @@ public class WindowForm extends Window{
         }
         return RecordCore.b2H(getUuid_());
     }
+
+
+
     public static WindowForm getFormByUuid(String uuid) {
         SessionCore sc = SessionCore.getCurrentContext();
         return forms_.containsKey(sc.getSessionID()) ? (WindowForm) ((StringDictionary) forms_.get(sc.getSessionID())).get(uuid) : null;
@@ -289,6 +293,11 @@ public class WindowForm extends Window{
 
     public void setStatefull(boolean statefull) {
         setStatefull_(statefull);
+        if(statefull_){
+            this.addConfig(new Conf[]{new Component.CPB("maximized", true)});
+            this.addConfig(new Conf[]{new Component.CPI("width", 800)});
+            this.addConfig(new Conf[]{new Component.CPI("height", 600)});
+        }
        /* if (statefull) { // TODO:: this part is commented out
             List<UserPreferencee> states = UserPreferencee.findAll(this.getId());
 

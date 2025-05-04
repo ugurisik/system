@@ -190,7 +190,7 @@ public class ObjectCore {
             addDate(r);
         }
 
-        r.procces();
+        r.process();
         Object pojo = getPojo(r);
         boolean result = isNew ? hh.saveMain(pojo) : hh.updateMain(pojo);
 
@@ -772,7 +772,7 @@ public class ObjectCore {
 
 
 
-    private static SuRecord createInstance(Class<? extends SuRecord> targetClass) {
+    public static SuRecord createInstance(Class<? extends SuRecord> targetClass) {
         try {
             return targetClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -844,7 +844,7 @@ public class ObjectCore {
 
 
     private static String generateAccessorName(String prefix, String fieldName) {
-        return prefix + fieldName.substring(0, 1).toUpperCase(Locale.getDefault()) + fieldName.substring(1);
+        return prefix + fieldName.substring(0, 1).replace("i","I").toUpperCase(Locale.getDefault()) + fieldName.substring(1);
     }
 
     public static Object getFieldValue(Object r, String fieldName) {
@@ -976,10 +976,14 @@ public class ObjectCore {
     }
 
 
+
+
     public static class ListParameter {
         public int start;
         public int limit;
         public int page;
+        public CriteriaBuilder initialCriteria;
+        public boolean storeParams = true;
     }
 
     public static class ListResult {

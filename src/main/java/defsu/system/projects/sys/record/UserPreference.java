@@ -14,8 +14,7 @@ import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+
 public class UserPreference extends MapComponentstate implements SuRecord {
     public static final long serialVersionUID = 1L;
     private boolean empty = true;
@@ -28,6 +27,13 @@ public class UserPreference extends MapComponentstate implements SuRecord {
         setEmpty(true);
         initialize();
     }
+
+    @Override
+    public RecordManipulation delete() {
+        return null;
+    }
+
+
 
     public UserPreference(Object pk) {
         Object o = null;
@@ -134,13 +140,30 @@ public class UserPreference extends MapComponentstate implements SuRecord {
     }
 
     @Override
-    public void procces() {
+    public void process() {
 
     }
 
     @Override
+    public void _initialize() {
+
+    }
+
+
+
+    @Override
     public boolean disableLog() {
         return false;
+    }
+
+    @Override
+    public boolean getEmpty() {
+        return false;
+    }
+
+    @Override
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
     }
 
 

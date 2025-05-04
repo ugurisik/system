@@ -28,8 +28,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Getter
-@Setter
+
 public class User extends MapUser implements SuRecord {
     private boolean empty = true;
     public static final String PRIMARY_KEY = "userPK";
@@ -329,125 +328,150 @@ public class User extends MapUser implements SuRecord {
         return response;
     }
 
+
+    public SuResponse getStartmenu(){
+        SuResponse response = new SuResponse();
+        response.setRows(StartMenuCore.getMenuList());
+        return response;
+    }
+
+
+
+    @Override
+    public RecordManipulation save() {
+        return null;
+    }
+
+    @Override
+    public RecordManipulation delete() {
+        return null;
+    }
+
+
     @Permission(
             minimumUserLevel = 1
     )
     public SuResponse login(String userName, String password){
         SuResponse response = new SuResponse();
 
-        if(userName.isEmpty() || password.isEmpty()){
-            response.getMessages().add(ModuleUtils.errorMessage("Giriş Hatası","Kullanıcı adı ve şifre boş bırakılamaz!"));
-            return response;
-        }
-
-
-        SessionCore sc = SessionCore.getCurrentContext();
-        HibernateCore hc = sc.getHibernateHandler();
-
-
-        CriteriaBuilder builder = hc.getCriteriaBuilder();
-        CriteriaQuery<MapUser> criteria = builder.createQuery(MapUser.class);
-        Root<MapUser> root = criteria.from(MapUser.class);
-        criteria.select(root).where(
-                builder.equal(root.get("userName"), userName)
-        );
-        ObjectCore.ListResult result = ObjectCore.list(User.class,criteria);
-        if(!result.records.isEmpty()){
-            User user = (User) result.records.get(0);
-            ObjectCore.copyPojoToRecord(user,this);
-
-            InteractionMessage locked = new InteractionMessage();
-            locked.type = Enums.InteractionMessageType.ERROR;
-            if(this.getMigrationRef() >= 10){
-                if(this.getMigrationRef() == 99){
-                    locked.setMessage("Kullanıcınız kullanım dışı olması sebebiyle giriş yetkiniz kaldırılmıştır. Sistem yöneticinize başvurun.");
-                }else{
-                    locked.setMessage("Kullanıcınız hatalı şifre denemesi nedeniyle kitlenmiştir. Sistem yöneticinize başvurun");
-                }
-                response.getMessages().add(locked);
+        try{
+            if(userName.isEmpty() || password.isEmpty()){
+                response.getMessages().add(ModuleUtils.errorMessage("Giriş Hatası","Kullanıcı adı ve şifre boş bırakılamaz!"));
                 return response;
-            }else{
-                if(Arrays.equals(this.getUserStatusFK(), RecordCore.i2B(0))){
-                    locked.setMessage("Kullanıcınız pasif durumda olduğu için giriş yapamazsınız. Sistem yöneticinize başvurun.");
-                    response.getMessages().add(locked);
-                    return response;
-                }else{
-                    byte[] hash = null;
-                    try{
-                        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                        hash = digest.digest(password.getBytes("UTF-8"));
-                    }catch (Exception e){
-                        Logger.Error(e,"Şifreleme hatası",true);
-                    }
-                    String hashedPass = RecordCore.b2H(hash);
-                    if((hash != null) && (this.getUserPassword().equals(hashedPass) || password.equals(this.getUserPassword()))){
-                        this.setMigrationRef(1);
-                        this.setUserLastLoginDT(new Date());
-                        this.setEmpty(false);
-                        ObjectCore.save(this);
-                        List<SessionCore> userContexts = SessionCore.getUserContexts(this);
-                        if (userContexts.size() > 0) {
-                            boolean confirm = ModuleUtils.confirmMessage("Çoklu Oturum", "Bu kullanıcıya ait başka oturumlar açık. Bu oturumları kapatmak ister misiniz?");
-                            if(!confirm){
-                                response.getMessages().add(ModuleUtils.errorMessage("Çoklu Oturum","İsteğiniz üzere giriş işlemi iptal edildi!"));
-                                return response;
-                            }
-                        }else{
-                            //response.getMessages().add(ModuleUtils.successMessage("Giriş Başarılı","Hoşgeldiniz " + this.getUserRealName()));
-                        }
-                        ServerUtility.setUser(this);
-                        changePresence(new User.UserPresence(this));
-                        response.getCookies().add(new DynamicCookie("DEFSUN", sc.getSessionID(), SystemApplication.USERCOOKIEDAY));
-                        WSUpdateCore.Payload p = new WSUpdateCore.Payload();
-                        p.fn = "login";
-                        ArrayList<NameValuePair> customData = new ArrayList();
-                        customData.add(new NameValuePair("userName", user.getUserName()));
-                        customData.add(new NameValuePair("userRealName", user.getUserRealName()));
-                        p.customData = customData;
-                        WSUpdateCore.pump("admin.logins", p);
-                        WSUpdateCore.subscribe("admin.logins");
-                        WSUpdateCore.subscribe("private.user." + user.getUserName());
-                        WSUpdateCore.subscribe("private.session." + sc.getSessionID());
-                        response.setCustomData(customData);
-                        if (user.getUserRequestNewPassword()) {
-                            SuResponse.ModuleInitiator initiator = new SuResponse.ModuleInitiator();
-                            initiator.className = LoginService.class.getName();
-                            initiator.form = "cp";
-                            response.setModuleInitiator(initiator);
-                        } else {
-                            String newVersionName = (String) ServerUtility.getConfig("GNL", "versionName", 0);
-                            String userKey = ObjectCore.toString(ServerUtility.getUser().getUserPK());
-                            String currentVersionName = (String) ServerUtility.getConfig("PROMPT", userKey, "");
-                            if (!newVersionName.equals(currentVersionName)) {
-                                ServerUtility.setConfig("PROMPT", userKey, newVersionName);
-                                SuResponse.ModuleInitiator initiator = new SuResponse.ModuleInitiator();
-                                initiator.className = LoginService.class.getName();
-                                initiator.form = "pr";
-                                response.setModuleInitiator(initiator);
-                            }
-                        }
-                        Iterator it = loginHandlers.iterator();
-
-                        while (it.hasNext()) {
-                            User.LoginHandler handler = (User.LoginHandler) it.next();
-                            handler.onLogin(user, response);
-                        }
-
-
-
-                    }else{
-                        locked.setMessage("Kullanıcı adı veya şifre hatalı!");
-                        response.getMessages().add(locked);
-                        this.setMigrationRef(this.getMigrationRef() + 1);
-                        ObjectCore.save(this);
-                        return response;
-                    }
-                }
             }
 
 
-        }else{
-            response.getMessages().add(ModuleUtils.errorMessage("Giriş Hatası","Kullanıcı bulunamadı!"));
+            SessionCore sc = SessionCore.getCurrentContext();
+            HibernateCore hc = sc.getHibernateHandler();
+
+
+            CriteriaBuilder builder = hc.getCriteriaBuilder();
+            CriteriaQuery<MapUser> criteria = builder.createQuery(MapUser.class);
+            Root<MapUser> root = criteria.from(MapUser.class);
+            criteria.select(root).where(
+                    builder.equal(root.get("userName"), userName)
+            );
+            ObjectCore.ListResult result = ObjectCore.list(User.class,criteria);
+            if(!result.records.isEmpty()){
+                User user = (User) result.records.get(0);
+                ObjectCore.copyPojoToRecord(user,this);
+
+                InteractionMessage locked = new InteractionMessage();
+                locked.type = Enums.InteractionMessageType.ERROR;
+                if(this.getMigrationRef() >= 10){
+                    if(this.getMigrationRef() == 99){
+                        locked.setMessage("Kullanıcınız kullanım dışı olması sebebiyle giriş yetkiniz kaldırılmıştır. Sistem yöneticinize başvurun.");
+                    }else{
+                        locked.setMessage("Kullanıcınız hatalı şifre denemesi nedeniyle kitlenmiştir. Sistem yöneticinize başvurun");
+                    }
+                    response.getMessages().add(locked);
+                    return response;
+                }else{
+                    if(Arrays.equals(this.getUserStatusFK(), RecordCore.i2B(0))){
+                        locked.setMessage("Kullanıcınız pasif durumda olduğu için giriş yapamazsınız. Sistem yöneticinize başvurun.");
+                        response.getMessages().add(locked);
+                        return response;
+                    }else{
+                        byte[] hash = null;
+                        try{
+                            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                            hash = digest.digest(password.getBytes("UTF-8"));
+                        }catch (Exception e){
+                            Logger.Error(e,"Şifreleme hatası",true);
+                        }
+                        String hashedPass = RecordCore.b2H(hash);
+                        if((hash != null) && (this.getUserPassword().equals(hashedPass) || password.equals(this.getUserPassword()))){
+                            this.setMigrationRef(1);
+                            this.setUserLastLoginDT(new Date());
+                            this.setEmpty(false);
+                            ObjectCore.save(this);
+                            List<SessionCore> userContexts = SessionCore.getUserContexts(this);
+                            if (userContexts.size() > 0) {
+                                boolean confirm = ModuleUtils.confirmMessage("Çoklu Oturum", "Bu kullanıcıya ait başka oturumlar açık. Bu oturumları kapatmak ister misiniz?");
+                                if(!confirm){
+                                    response.getMessages().add(ModuleUtils.errorMessage("Çoklu Oturum","İsteğiniz üzere giriş işlemi iptal edildi!"));
+                                    return response;
+                                }
+                            }else{
+                                //response.getMessages().add(ModuleUtils.successMessage("Giriş Başarılı","Hoşgeldiniz " + this.getUserRealName()));
+                            }
+                            ServerUtility.setUser(this);
+                            changePresence(new User.UserPresence(this));
+                            response.getCookies().add(new DynamicCookie("DEFSUN", sc.getSessionID(), SystemApplication.USERCOOKIEDAY));
+                            WSUpdateCore.Payload p = new WSUpdateCore.Payload();
+                            p.fn = "login";
+                            ArrayList<NameValuePair> customData = new ArrayList();
+                            customData.add(new NameValuePair("userName", user.getUserName()));
+                            customData.add(new NameValuePair("userRealName", user.getUserRealName()));
+                            p.customData = customData;
+                            WSUpdateCore.pump("admin.logins", p);
+                            WSUpdateCore.subscribe("admin.logins");
+                            WSUpdateCore.subscribe("private.user." + user.getUserName());
+                            WSUpdateCore.subscribe("private.session." + sc.getSessionID());
+                            response.setCustomData(customData);
+                            if (user.getUserRequestNewPassword()) {
+                                SuResponse.ModuleInitiator initiator = new SuResponse.ModuleInitiator();
+                                initiator.className = LoginService.class.getName();
+                                initiator.form = "cp";
+                                response.setModuleInitiator(initiator);
+                            } else {
+                                String newVersionName = (String) ServerUtility.getConfig("GNL", "versionName", 0);
+                                String userKey = ObjectCore.toString(ServerUtility.getUser().getUserPK());
+                                String currentVersionName = (String) ServerUtility.getConfig("PROMPT", userKey, "");
+                                if (!newVersionName.equals(currentVersionName)) {
+                                    ServerUtility.setConfig("PROMPT", userKey, newVersionName);
+                                    SuResponse.ModuleInitiator initiator = new SuResponse.ModuleInitiator();
+                                    initiator.className = LoginService.class.getName();
+                                    initiator.form = "pr";
+                                    response.setModuleInitiator(initiator);
+                                }
+                            }
+                            Iterator it = loginHandlers.iterator();
+
+                            while (it.hasNext()) {
+                                User.LoginHandler handler = (User.LoginHandler) it.next();
+                                handler.onLogin(user, response);
+                            }
+
+
+
+                        }else{
+                            locked.setMessage("Kullanıcı adı veya şifre hatalı!");
+                            response.getMessages().add(locked);
+                            this.setMigrationRef(this.getMigrationRef() + 1);
+                            ObjectCore.save(this);
+                            return response;
+                        }
+                    }
+                }
+
+
+            }else{
+                response.getMessages().add(ModuleUtils.errorMessage("Giriş Hatası","Kullanıcı bulunamadı!"));
+            }
+        }catch (Exception e){
+            response.getMessages().add(ModuleUtils.errorMessage("Giriş Hatası","Bir sorun oluştu lütfen daha sonra tekrar deneyiniz!"));
+            Logger.Error(e.getMessage(),true);
         }
 
         return response;
@@ -469,7 +493,7 @@ public class User extends MapUser implements SuRecord {
             response.setCustomData(pairs);
         } else {
             User cUser = ServerUtility.getUser();
-            if (cUser.isEmpty()) {
+            if (cUser.getEmpty()) {
                 response.setModuleInitiator(new SuResponse.ModuleInitiator(LoginService.class.getName(), new SuResponse.ModuleInitiatorParam[]{new SuResponse.ModuleInitiatorParam("userName", "default")}));
             } else {
                 List<NameValuePair> pairs = new ArrayList();
@@ -560,13 +584,28 @@ public class User extends MapUser implements SuRecord {
     }
 
     @Override
-    public void procces() {
+    public void process() {
+
+    }
+
+    @Override
+    public void _initialize() {
 
     }
 
     @Override
     public boolean disableLog() {
         return false;
+    }
+
+    @Override
+    public boolean getEmpty() {
+        return empty;
+    }
+
+    @Override
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
     }
 
 

@@ -2,6 +2,7 @@ package defsu.system;
 
 import defsu.system.server.ServerManagment;
 import defsu.system.server.core.HibernateCore;
+import defsu.system.server.core.StartMenuCore;
 import defsu.system.server.core.UpdateCore;
 import defsu.system.server.utils.Logger;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +18,7 @@ public class SystemApplication {
 
 	public static int USERCOOKIEDAY = 1;
 	public static String secretKey = "K3DK9SZ3";
-	public static String projects = "canteen;facility";
+	public static String projects = "main";
 	public static String DEFAULT_LANGUAGE = "TR-TR";
 	public static final String startTime = System.getProperty("user.dir")+"\\log\\info\\"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
 	public static void main(String[] args) {
@@ -45,6 +46,7 @@ public class SystemApplication {
 				UpdateCore.ready(true);
 			}
 		});
+		StartMenuCore.init();
 		ServerManagment.main(args);
 	}
 

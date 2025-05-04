@@ -312,21 +312,15 @@ public class ConnectionCore {
                 sb.append(RecordCore.b2H(RecordCore.guid()));
             } + sb.toString()*/
 
-
-            Logger.Info("!-- " + (messages) + "|" + (++messageCount) + " --IP!" + ConnectionCore._socket.getInetAddress() + "!-- --M!" + message + "!--", true);
+            if(!message.equals("sa.")){
+                Logger.Info("!-- " + (messages) + "|" + (++messageCount) + " --IP!" + ConnectionCore._socket.getInetAddress() + "!-- --M!" + message + "!--", true);
+            }
 
             if (messageCount >= 10) {
                 messages++;
                 messageCount = 0;
             }
-            if ((messages * 20) % 200 == 0) {
-                Logger.Info("Clearing console", true);
-               /* Logger.clearConsole();
-                WSUpdateCore.Payload p = new WSUpdateCore.Payload();
-                p.messages.add(ModuleUtils.errorMessage("testtt","testt"));
-                WSUpdateCore.pumpAll(p);*/
 
-            }
             return messageId != null ? "MID:" + messageId + " " + output : output;
         } catch (Exception e) {
             StringWriter errors = new StringWriter();

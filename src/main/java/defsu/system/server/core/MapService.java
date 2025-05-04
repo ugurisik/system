@@ -73,4 +73,97 @@ public abstract class MapService {
         }
         return response;
     }
+
+    public static void appendSearch(StringDictionary<String> list, String key, String searchVal) {
+        appendSearch(list, key, searchVal, true);
+    }
+
+    public static void appendSearch(StringDictionary<String> list, String key, String searchVal, boolean limitSubscriber) {
+        // Null veya geçersiz parametre kontrolü
+        if (list == null || key == null || searchVal == null || searchVal.isEmpty()) {
+            return;
+        }
+
+        String search = list.containsKey("@search") ? list.get("@search") : "";
+
+        // Mevcut arama string'i boş değilse ayırıcı ekle
+        if (!search.isEmpty()) {
+            search += ";";
+        }
+
+        // Yeni arama kriterini ekle
+        search += key + "=" + searchVal + (limitSubscriber ? "" : "~");
+
+        // Güncellenen aramayı kaydet
+        list.put("@search", search);
+    }
+
+    public static void removeSearch(StringDictionary<String> list, String key) {
+        // Null veya geçersiz parametre kontrolü
+        if (list == null || key == null || !list.containsKey("@search")) {
+            return;
+        }
+
+        String search = list.get("@search");
+        if (search == null || search.isEmpty()) {
+            return;
+        }
+
+        String[] searchItems = search.split(";");
+        StringBuilder newSearch = new StringBuilder();
+
+        // Key ile başlamayan öğeleri yeni arama string'ine ekle
+        for (String item : searchItems) {
+            if (item != null && !item.startsWith(key)) {
+                if (newSearch.length() > 0) {
+                    newSearch.append(";");
+                }
+                newSearch.append(item);
+            }
+        }
+
+        // Güncellenen aramayı kaydet
+        list.put("@search", newSearch.toString());
+    }
+
+    public static String join(String[] input, String delimiter) {
+        // Null veya boş dizi kontrolü
+        if (input == null || input.length == 0) {
+            return "";
+        }
+
+        // String.join kullanımı (Java 8+)
+        return String.join(delimiter, input);
+    }
+
+    public static String or(String... vals) {
+        // Null veya boş dizi kontrolü
+        if (vals == null || vals.length == 0) {
+            return "";
+        }
+
+        // String.join kullanımı (Java 8+)
+        return String.join("|", vals);
+    }
+
+    public static void appendSort(StringDictionary<String> list, String key, String sortVal) {
+        // Null veya geçersiz parametre kontrolü
+        if (list == null || key == null || sortVal == null || sortVal.isEmpty()) {
+            return;
+        }
+
+        String sort = list.containsKey("@sort") ? list.get("@sort") : "";
+
+        sort = sort.replace("undefined=D","");
+        // Mevcut sıralama string'i boş değilse ayırıcı ekle
+        if (!sort.isEmpty()) {
+            sort += ";";
+        }
+
+        // Yeni sıralama kriterini ekle
+        sort += key + "=" + sortVal;
+
+        // Güncellenen sıralamayı kaydet
+        list.put("@sort", sort);
+    }
 }

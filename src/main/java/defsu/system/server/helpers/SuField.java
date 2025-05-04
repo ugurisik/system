@@ -25,6 +25,7 @@ public class SuField implements Serializable {
     public boolean sortable;
     public boolean translateable;
     public boolean classified;
+    public boolean isNegative;
     @Expose
     @SerializedName("type")
     public SuField.FT fieldType;
@@ -61,6 +62,7 @@ public class SuField implements Serializable {
        // this.service = ServiceSearch.class;
         this.searchField = null;
         this.searchArgs = "";
+        this.isNegative = false;
     }
 
     public void addLanguageColumn(SuField.LanguageColumn lColumn) {

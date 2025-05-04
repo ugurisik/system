@@ -2530,7 +2530,7 @@ Ext.define('MyDesktop.App', {
 		*/
     },
 
-	wallpaper : 'sources/assets/images/msb.png',
+	wallpaper : 'sources/assets/images/bg.jpg',
     getDesktopConfig: function () {
         var me = this, ret = me.callParent();
 

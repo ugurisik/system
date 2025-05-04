@@ -3,6 +3,7 @@ package defsu.system.projects.sys.record;
 import defsu.system.server.components.SimpleComboAdapter;
 import defsu.system.server.core.*;
 import defsu.system.server.core.*;
+import defsu.system.server.helpers.RecordManipulation;
 import defsu.system.server.helpers.RecordMethod;
 import defsu.system.server.helpers.SuField;
 import defsu.system.server.maps.MapUserlog;
@@ -12,8 +13,7 @@ import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+
 public class Manipulationlog extends MapUserlog implements SuRecord {
     private boolean empty = true;
     public static final String PRIMARY_KEY = "manipulationLogPK";
@@ -59,7 +59,8 @@ public class Manipulationlog extends MapUserlog implements SuRecord {
         }
     }
 
-    private void _initialize() {
+    @Override
+    public void _initialize() {
         if (_fields == null) {
             _fields = new SuField.SuFieldList();
             SuField f = new SuField();
@@ -162,7 +163,7 @@ public class Manipulationlog extends MapUserlog implements SuRecord {
     }
 
     @Override
-    public void procces() {
+    public void process() {
 
     }
 
@@ -170,4 +171,25 @@ public class Manipulationlog extends MapUserlog implements SuRecord {
     public boolean disableLog() {
         return true;
     }
+
+    @Override
+    public boolean getEmpty() {
+        return false;
+    }
+
+    @Override
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
+    }
+
+    @Override
+    public RecordManipulation save() {
+        return null;
+    }
+
+    @Override
+    public RecordManipulation delete() {
+        return null;
+    }
+
 }

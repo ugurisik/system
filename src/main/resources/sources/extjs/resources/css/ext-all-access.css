@@ -124,7 +124,7 @@ select {
 #desktop-1009_wallpaper{
 	/* background-image: url("wallpapers/dark.jpg")!important; */
 	background-color: #ececec !important;
-    background-image: url(/core/app/images/msb.png) !important;
+    background-image: url(/core/app/images/bg.jpg) !important;
     background-repeat: no-repeat;
     background-position: center;
 	background-size: 35%;

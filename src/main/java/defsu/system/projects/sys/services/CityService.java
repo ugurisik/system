@@ -1,47 +1,24 @@
-package defsu.system.projects;
+package defsu.system.projects.sys.services;
 
+import defsu.system.projects.sys.forms.CityForm;
 import defsu.system.projects.sys.forms.test.TestForm;
-import defsu.system.projects.sys.record.User;
+import defsu.system.projects.sys.record.City;
 import defsu.system.server.components.Component;
 import defsu.system.server.components.WindowForm;
 import defsu.system.server.core.*;
-import defsu.system.server.core.*;
-import defsu.system.server.helpers.InteractionMessage;
-import defsu.system.server.utils.Enums;
-import defsu.system.server.utils.Json;
-import defsu.system.server.utils.Logger;
 
 import java.util.ArrayList;
 
-public class TestService extends MapService {
+public class CityService extends MapService {
     private static ArrayList<ServiceAbility> actions;
-    public TestService() {
+
+    public CityService() {
         this.initialize();
     }
-    private void initialize(){
+
+    public void initialize() {
         if(actions == null){
             actions = new ArrayList<>();
-
-            actions.add(new ServiceAbility("test", new ServiceAbility.ActionHandler() {
-                @Override
-                public SuResponse handle(StringDictionary<ServerObject> params) {
-                    SuResponse response = new SuResponse();
-                    ServerObject args = params.get("ARGS");
-                    StringDictionary<String> mem = args.memory;
-                    Logger.Info(Json.convertToJson(mem));
-                    Logger.Info(Json.convertToJson(args));
-
-                    InteractionMessage message = new InteractionMessage();
-                    message.setType(Enums.InteractionMessageType.INFO);
-                    message.setTitle("Test Service");
-                    message.setMessage("Test service is working");
-                    response.getMessages().add(message);
-                    response.setStatusCode("100");
-                    return response;
-                }
-            }));
-
-
             actions.add(new ServiceAbility("form", new ServiceAbility.ActionHandler() {
                 @Override
                 public SuResponse handle(StringDictionary<ServerObject> params) {
@@ -56,17 +33,30 @@ public class TestService extends MapService {
                         }else{
                             form = WindowForm.getFormByUuid(mem.get("@form"));
                         }
-
                     }
                     if(form == null){
-                        form = WindowForm.getFormByClass(TestForm.class);
+                        form = WindowForm.getFormByClass(CityForm.class);
                         if(form == null){
-                            form = new TestForm();
+                            form = new CityForm();
                             WindowForm.addForm((WindowForm) form);
                         }
                     }
                     ServerUtility.setForm(form);
                     response.setForm(Component.getJson(form));
+                    return response;
+                }
+            }));
+
+            actions.add(new ServiceAbility("list", new ServiceAbility.ActionHandler() {
+                public SuResponse handle(StringDictionary<ServerObject> params) {
+                    SuResponse response = new SuResponse();
+                    WSUpdateCore.subscribe(City.class);
+                    ServerObject args = (ServerObject) params.get("ARGS");
+                    StringDictionary<String> mem = args.memory;
+                    MapService.appendSort(mem, "accountListCode", "A");
+                   // response.setListResult(ObjectCore.listAsRecordRow(City.class, mem));
+
+                    response.setStatusCode("100");
                     return response;
                 }
             }));
@@ -93,6 +83,10 @@ public class TestService extends MapService {
             }));
         }
     }
+
+
+
+
 
     @Override
     public ArrayList<ServiceAbility> getActions() {

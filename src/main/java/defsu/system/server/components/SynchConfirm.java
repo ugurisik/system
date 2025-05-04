@@ -95,4 +95,13 @@ public class SynchConfirm extends SynchInteraction {
             return this.type;
         }
     }
+
+    public static enum type {
+        CONFIRM("confirm"), ALERT("alert"), PROMPT("prompt"),PROGRESS("progress");
+
+        public String value;
+        private type(String value) {
+            this.value = value;
+        }
+    }
 }

@@ -3590,14 +3590,14 @@ Ext.define('UGRFrontend.desktop.view.GTChatView', {
                         name: 'sender',
                         type: 'string'
                     },
-                        {
-                            name: 'message',
-                            type: 'string'
-                        },
-                        {
-                            name: 'id',
-                            type: 'string'
-                        }
+                    {
+                        name: 'message',
+                        type: 'string'
+                    },
+                    {
+                        name: 'id',
+                        type: 'string'
+                    }
                     ]
                 });
             }
@@ -5388,14 +5388,14 @@ Ext.define('UGRFrontend.desktop.GTCall', {
             title: 'Your Camera',
             region: 'center'
         },
-            {
-                xtype: 'panel',
-                split: true,
-                id: c.id + '-c2',
-                title: "Not in a Call",
-                region: 'east',
-                width: 400
-            }
+        {
+            xtype: 'panel',
+            split: true,
+            id: c.id + '-c2',
+            title: "Not in a Call",
+            region: 'east',
+            width: 400
+        }
         ];
 
         this.callParent(arguments);
@@ -5438,12 +5438,12 @@ Ext.define('UGRFrontend.desktop.GTCall', {
 
         if (navigator.getUserMedia) {
             navigator.getUserMedia({
-                    audio: true,
-                    video: {
-                        width: 640,
-                        height: 480
-                    }
-                },
+                audio: true,
+                video: {
+                    width: 640,
+                    height: 480
+                }
+            },
                 function (stream) {
                     var video = document.querySelector('#' + me.getId() + '-selfVideo');
                     video.src = window.URL.createObjectURL(stream);
@@ -6067,12 +6067,12 @@ Ext.define('UGRFrontend.desktop.GTFlow', {
 
         // this is the paint style for the connecting lines..
         var approveConnectorPaintStyle = {
-                lineWidth: 4,
-                strokeStyle: "#61B7CF",
-                joinstyle: "round",
-                outlineColor: "white",
-                outlineWidth: 2
-            },
+            lineWidth: 4,
+            strokeStyle: "#61B7CF",
+            joinstyle: "round",
+            outlineColor: "white",
+            outlineWidth: 2
+        },
             rejectConnectorPaintStyle = {
                 lineWidth: 4,
                 strokeStyle: "#992222",
@@ -7599,7 +7599,7 @@ Ext.define('UGRFrontend.desktop.GTFileField', {
                     url: '/gtsp/upload',
                     params: {
                         data: e.target.result,
-                        name: fileNameSuffix+"_"+theFile.name
+                        name: fileNameSuffix + "_" + theFile.name
                     },
                     success: function (response) {
                         UGRJS.Desktop.setComponent(me, 'file', response.responseText);
@@ -8019,29 +8019,29 @@ Ext.define('UGRFrontend.desktop.GTRegionSchedule', {
                 id: me.id + '-regions-space-lbl',
                 text: Ext.Date.format(me.currentDate, 'm.Y')
             },
+            {
+                xtype: 'container',
+                layout: 'hbox',
+                items: [{
+                    xtype: 'button',
+                    text: '<',
+                    flex: 1,
+                    listeners: {
+                        scope: me,
+                        click: me.prevMonth
+                    }
+                },
                 {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    items: [{
-                        xtype: 'button',
-                        text: '<',
-                        flex: 1,
-                        listeners: {
-                            scope: me,
-                            click: me.prevMonth
-                        }
-                    },
-                        {
-                            xtype: 'button',
-                            text: '>',
-                            flex: 1,
-                            listeners: {
-                                scope: me,
-                                click: me.nextMonth
-                            }
-                        }
-                    ]
+                    xtype: 'button',
+                    text: '>',
+                    flex: 1,
+                    listeners: {
+                        scope: me,
+                        click: me.nextMonth
+                    }
                 }
+                ]
+            }
             ],
             layout: {
                 type: 'vbox',
@@ -10956,25 +10956,25 @@ Ext.define('UGRFrontend.desktop.GTGrid', {
         var me = this;
         pt.add(
             '-', {
-                icon: '../icons/stk/16/manipulationlog.png',
-                tooltip: 'Kayıt logları...',
-                listeners: {
-                    click: function () {
-                        me.logShow();
-                    }
+            icon: '../icons/stk/16/manipulationlog.png',
+            tooltip: 'Kayıt logları...',
+            listeners: {
+                click: function () {
+                    me.logShow();
                 }
             }
+        }
         );
         pt.add(
             '-', {
-                icon: '../icons/stk/16/excel.png',
-                tooltip: 'Excel\'e çıkar...',
-                listeners: {
-                    click: function () {
-                        me.excelExport();
-                    }
+            icon: '../icons/stk/16/excel.png',
+            tooltip: 'Excel\'e çıkar...',
+            listeners: {
+                click: function () {
+                    me.excelExport();
                 }
             }
+        }
         );
     },
     logShow: function () {
@@ -11039,26 +11039,26 @@ Ext.define('UGRFrontend.desktop.GTGrid', {
             key: '@os',
             value: me.initialConfig.service
         },
-            {
-                key: '@viewId',
-                value: me.getId()
-            },
-            {
-                key: '@viewType',
-                value: 'grid'
-            },
-            {
-                key: '@search',
-                value: filterStr
-            },
-            {
-                key: '@form',
-                value: me.ownerUuid
-            },
-            {
-                key: '@sort',
-                value: sorterParams
-            }
+        {
+            key: '@viewId',
+            value: me.getId()
+        },
+        {
+            key: '@viewType',
+            value: 'grid'
+        },
+        {
+            key: '@search',
+            value: filterStr
+        },
+        {
+            key: '@form',
+            value: me.ownerUuid
+        },
+        {
+            key: '@sort',
+            value: sorterParams
+        }
         ];
 
         for (var name in me.gParameters) {
@@ -11211,7 +11211,7 @@ Ext.define('UGRFrontend.desktop.GTGrid', {
 
         me.isReloading = true;
         me.getStore().loadPage(1);
-       //  me.getStore().reload();
+        //  me.getStore().reload();
         me.isReloading = false;
     },
     doRefresh2: function (val) {
@@ -12294,8 +12294,8 @@ Ext.define('UGRFrontend.desktop.GTTextField', {
             c.listeners = {};
         }
         console.log(c)
-        if(c.width !== null && c.width !== undefined){
-            console.log("comp width:"+c.width);
+        if (c.width !== null && c.width !== undefined) {
+            console.log("comp width:" + c.width);
             //this.setCmpWidth(c.width)
             this.setWidth(c.width)
         }
@@ -12376,13 +12376,13 @@ Ext.define('UGRFrontend.desktop.GTTextField', {
             UGRJS.Desktop.setComponent(this, 'value', this.getValue());
             Ext.defer(
                 function () {
-                    if (me.id == 'login-text-password' || me.id == 'login-text-userName') {
+                    if (me.id == 'login-username' || me.id == 'login-password') {
                         UGRJS.Desktop.runMethod({
                             cls: 'defsu.system.projects.sys.services.auth.LoginService',
                             method: 'login',
                             processResponse: true,
                             onSuccess: function (msg) {
-                                Ext.getCmp('login').close();
+                                Ext.getCmp('loginForm').close();
                                 UGRJS.Desktop.onLogin(msg);
                             },
                             onFail: function (msg) {
@@ -12662,7 +12662,7 @@ Ext.define('UGRFrontend.desktop.GTButton', {
                     processResponse: true,
                     onSuccess: function (msg) {
                         if (me.method.name == 'login') {
-                            Ext.getCmp('login').close();
+                            Ext.getCmp('loginForm').close();
                             UGRJS.Desktop.onLogin(msg);
                         }
                     },
@@ -13060,10 +13060,10 @@ Ext.define('UGRFrontend.net.WsConnector', {
                 if (received_msg == 'sa') {
                     me.request(
                         "sa.", {
-                            onResponse: function (msg) {
+                        onResponse: function (msg) {
 
-                            }
                         }
+                    }
                     );
                 } else {
                     me.fireEvent('receive', received_msg);
@@ -13162,20 +13162,20 @@ Ext.define('UGRFrontend.net.WsConnector', {
             var cPair = me.memoryQueue[me.memoryQueueIndex];
             me.request(
                 "memory set " + cPair.key + " \"" + (cPair.value + '').replace(/"/g, '&quot;') + "\"", {
-                    onResponse: function (msg) {
-                        if (msg == UGRFrontend.net.WsConnector.GOAHEAD) {
-                            if (me.memoryQueue.length > me.memoryQueueIndex) {
-                                me.memoryQueueIndex++;
-                            }
+                onResponse: function (msg) {
+                    if (msg == UGRFrontend.net.WsConnector.GOAHEAD) {
+                        if (me.memoryQueue.length > me.memoryQueueIndex) {
+                            me.memoryQueueIndex++;
+                        }
 
-                            me.processMemoryQueue();
+                        me.processMemoryQueue();
 
-                            if (cPair.callBack != null) {
-                                cPair.callBack();
-                            }
+                        if (cPair.callBack != null) {
+                            cPair.callBack();
                         }
                     }
                 }
+            }
             );
         }
     },
@@ -13215,24 +13215,24 @@ Ext.define('UGRFrontend.net.WsConnector', {
             var cPair = me.parameterQueue[me.parameterQueueIndex];
             me.request(
                 "parameter set " + cPair.key + " \"" + (cPair.value + '').replace(/"/g, '&quot;') + "\"", {
-                    onResponse: function (msg) {
-                        if (msg == UGRFrontend.net.WsConnector.OK) {
-                            if (me.parameterQueue.length > me.parameterQueueIndex) {
-                                me.parameterQueueIndex++;
-                            }
-                            me.processParameterQueue();
+                onResponse: function (msg) {
+                    if (msg == UGRFrontend.net.WsConnector.OK) {
+                        if (me.parameterQueue.length > me.parameterQueueIndex) {
+                            me.parameterQueueIndex++;
+                        }
+                        me.processParameterQueue();
 
-                            if (cPair.callBack != null) {
-                                if (cPair.scope != null) {
-                                    cPair.scope.sm_05 = cPair.callBack;
-                                    cPair.scope.sm_05();
-                                } else {
-                                    cPair.callBack();
-                                }
+                        if (cPair.callBack != null) {
+                            if (cPair.scope != null) {
+                                cPair.scope.sm_05 = cPair.callBack;
+                                cPair.scope.sm_05();
+                            } else {
+                                cPair.callBack();
                             }
                         }
                     }
                 }
+            }
             );
         }
     },
@@ -13296,35 +13296,24 @@ Ext.define('UGRFrontend.net.WsConnector', {
 
         me.request(
             jsonRequest, {
-                onResponse: function (msg) {
-                    var serverResponse;
-                    try {
-                        serverResponse = Ext.decode(msg);
-                        if (params.processResponse == true) {
-                            me.fireEvent('serverresponse', serverResponse);
-                        }
-
-                        Ext.callback(params.onResponse, params.scope, [serverResponse]);
-
-                        //if ( params.scope != null ){
-                        //	params.scope.sm_01 = params.onResponse;
-                        //	params.scope.sm_01(serverResponse);
-                        //} else {
-                        //	params.onResponse(serverResponse);
-                        //}
-                    } catch (ex) {
-                        // alert(ex);
-                        Ext.callback(params.onFail, params.scope, [msg]);
-
-                        //if ( params.scope != null ){
-                        //	params.scope.sm_02 = params.onFail;
-                        //	params.scope.sm_02(msg);
-                        //} else {
-                        //	params.onFail(msg);
-                        //}
+            onResponse: function (msg) {
+                var serverResponse;
+                try {
+                    serverResponse = Ext.decode(msg);
+                    if (params.processResponse == true) {
+                        me.fireEvent('serverresponse', serverResponse);
                     }
-                },
-                onFail: function (msg) {
+
+                    Ext.callback(params.onResponse, params.scope, [serverResponse]);
+
+                    //if ( params.scope != null ){
+                    //	params.scope.sm_01 = params.onResponse;
+                    //	params.scope.sm_01(serverResponse);
+                    //} else {
+                    //	params.onResponse(serverResponse);
+                    //}
+                } catch (ex) {
+                    // alert(ex);
                     Ext.callback(params.onFail, params.scope, [msg]);
 
                     //if ( params.scope != null ){
@@ -13334,7 +13323,18 @@ Ext.define('UGRFrontend.net.WsConnector', {
                     //	params.onFail(msg);
                     //}
                 }
+            },
+            onFail: function (msg) {
+                Ext.callback(params.onFail, params.scope, [msg]);
+
+                //if ( params.scope != null ){
+                //	params.scope.sm_02 = params.onFail;
+                //	params.scope.sm_02(msg);
+                //} else {
+                //	params.onFail(msg);
+                //}
             }
+        }
         );
 
         /*
@@ -13425,39 +13425,39 @@ Ext.define('UGRFrontend.net.WsConnector', {
         var requestFunction = function () {
             me.request(
                 jsonRequest, {
-                    onResponse: function (msg) {
-                        var serverResponse;
-                        try {
-                            serverResponse = Ext.decode(msg);
-                            if (params.processResponse == true) {
-                                me.fireEvent('serverresponse', serverResponse);
-                            }
-
-                            if (params.scope != null) {
-                                params.scope.sm_10 = params.onResponse;
-                                params.scope.sm_10(serverResponse);
-                            } else {
-                                params.onResponse(serverResponse);
-                            }
-                        } catch (ex) {
-                            // alert(ex);
-                            if (params.scope != null) {
-                                params.scope.sm_11 = params.onFail;
-                                params.scope.sm_11(msg);
-                            } else {
-                                params.onFail(msg);
-                            }
+                onResponse: function (msg) {
+                    var serverResponse;
+                    try {
+                        serverResponse = Ext.decode(msg);
+                        if (params.processResponse == true) {
+                            me.fireEvent('serverresponse', serverResponse);
                         }
-                    },
-                    onFail: function (msg) {
+
                         if (params.scope != null) {
-                            params.scope.sm_12 = params.onFail;
-                            params.scope.sm_12(msg);
+                            params.scope.sm_10 = params.onResponse;
+                            params.scope.sm_10(serverResponse);
+                        } else {
+                            params.onResponse(serverResponse);
+                        }
+                    } catch (ex) {
+                        // alert(ex);
+                        if (params.scope != null) {
+                            params.scope.sm_11 = params.onFail;
+                            params.scope.sm_11(msg);
                         } else {
                             params.onFail(msg);
                         }
                     }
+                },
+                onFail: function (msg) {
+                    if (params.scope != null) {
+                        params.scope.sm_12 = params.onFail;
+                        params.scope.sm_12(msg);
+                    } else {
+                        params.onFail(msg);
+                    }
                 }
+            }
             );
         };
 
@@ -13493,39 +13493,39 @@ Ext.define('UGRFrontend.net.WsConnector', {
         var requestFunction = function () {
             me.request(
                 jsonRequest, {
-                    onResponse: function (msg) {
-                        var serverResponse;
-                        try {
-                            serverResponse = Ext.decode(msg);
-                            if (params.processResponse == true) {
-                                me.fireEvent('serverresponse', serverResponse);
-                            }
-
-                            if (params.scope != null) {
-                                params.scope.sm_03 = params.onResponse;
-                                params.scope.sm_03(serverResponse);
-                            } else {
-                                params.onResponse(serverResponse);
-                            }
-                        } catch (ex) {
-                            // alert(ex);
-                            if (params.scope != null) {
-                                params.scope.sm_03 = params.onFail;
-                                params.scope.sm_03(msg);
-                            } else {
-                                params.onFail(serverResponse);
-                            }
+                onResponse: function (msg) {
+                    var serverResponse;
+                    try {
+                        serverResponse = Ext.decode(msg);
+                        if (params.processResponse == true) {
+                            me.fireEvent('serverresponse', serverResponse);
                         }
-                    },
-                    onFail: function (msg) {
+
+                        if (params.scope != null) {
+                            params.scope.sm_03 = params.onResponse;
+                            params.scope.sm_03(serverResponse);
+                        } else {
+                            params.onResponse(serverResponse);
+                        }
+                    } catch (ex) {
+                        // alert(ex);
                         if (params.scope != null) {
                             params.scope.sm_03 = params.onFail;
                             params.scope.sm_03(msg);
                         } else {
-                            params.onFail(msg);
+                            params.onFail(serverResponse);
                         }
                     }
+                },
+                onFail: function (msg) {
+                    if (params.scope != null) {
+                        params.scope.sm_03 = params.onFail;
+                        params.scope.sm_03(msg);
+                    } else {
+                        params.onFail(msg);
+                    }
                 }
+            }
             );
         };
 
@@ -13543,17 +13543,17 @@ Ext.define('UGRFrontend.net.WsConnector', {
         // }
         me.request(
             "form activate \"" + params.uuid + "\"", {
-                onResponse: function (msg) {
-                    if (msg == UGRFrontend.net.WsConnector.ACTIVATED) {
-                        if (params.scope != null) {
-                            params.scope.sm_008 = params.callBack;
-                            params.scope.sm_008();
-                        } else {
-                            params.callBack();
-                        }
+            onResponse: function (msg) {
+                if (msg == UGRFrontend.net.WsConnector.ACTIVATED) {
+                    if (params.scope != null) {
+                        params.scope.sm_008 = params.callBack;
+                        params.scope.sm_008();
+                    } else {
+                        params.callBack();
                     }
                 }
             }
+        }
         );
     },
 
@@ -13567,25 +13567,25 @@ Ext.define('UGRFrontend.net.WsConnector', {
         //     callBack: function,
         //     scope: object
         // }
-        if(params.propertyName === 'x' || params.propertyName === 'y' || params.propertyName === 'width' || params.propertyName === 'height'){
 
-        }else{
+        let properties = ['x', 'y', 'width', 'height', 'maximized', 'minimized'];
+
+        if (!properties.includes(params.propertyName)) {
             me.request(
                 "form set \"" + params.componentId + "\" \"" + params.propertyName + "\" \"" + (params.value + '').replace(/"/g, '&quot;') + "\"", {
-                    onResponse: function (msg) {
-                        if (msg == UGRFrontend.net.WsConnector.SET) {
-                            if (params.scope != null) {
-                                params.scope.sm_009 = params.callBack;
-                                params.scope.sm_009();
-                            } else {
-                                params.callBack();
-                            }
+                onResponse: function (msg) {
+                    if (msg == UGRFrontend.net.WsConnector.SET) {
+                        if (params.scope != null) {
+                            params.scope.sm_009 = params.callBack;
+                            params.scope.sm_009();
+                        } else {
+                            params.callBack();
                         }
                     }
                 }
+            }
             );
         }
-
     },
 
     pumpToChannel: function (params) {
@@ -13601,17 +13601,17 @@ Ext.define('UGRFrontend.net.WsConnector', {
 
         me.request(
             "channel push \"" + params.channel + "\" \"" + params.message.replace(/"/g, '&quot;') + "\"", {
-                onResponse: function (msg) {
-                    if (msg == UGRFrontend.net.WsConnector.SENT) {
-                        if (params.scope != null) {
-                            params.scope.sm_009 = params.callBack;
-                            params.scope.sm_009();
-                        } else {
-                            params.callBack();
-                        }
+            onResponse: function (msg) {
+                if (msg == UGRFrontend.net.WsConnector.SENT) {
+                    if (params.scope != null) {
+                        params.scope.sm_009 = params.callBack;
+                        params.scope.sm_009();
+                    } else {
+                        params.callBack();
                     }
                 }
             }
+        }
         );
 
     },
@@ -13827,7 +13827,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
             if (Ext.isArray(messages)) {
                 for (var m = 0; m < messages.length; m++) {
                     var message = messages[m];
-                    if(message.origin !== undefined){
+                    if (message.origin !== undefined) {
                         var channel = message.origin.channel;
                         if (me.channelSubscriptions[channel] != null) {
                             for (var k = 0; k < me.channelSubscriptions[channel].length; k++) {
@@ -13843,7 +13843,7 @@ Ext.define('UGRFrontend.desktop.Desktop', {
                         }
                     }
                     console.log(message);
-                    if(message.messages.length > 0){
+                    if (message.messages.length > 0) {
                         var mm = message.messages[0];
                         var Msg = Ext.Msg;
                         Msg.show({
@@ -13854,8 +13854,8 @@ Ext.define('UGRFrontend.desktop.Desktop', {
                             icon: Msg.INFO,
                             width: 300,
                             fn: Ext.emptyFn,
-                            x:10,
-                            y:10
+                            x: 10,
+                            y: 10
                         });
                         setTimeout(function () {
                             Msg.close();
@@ -14672,8 +14672,8 @@ Ext.define('UGRFrontend.desktop.Desktop', {
                             btnCmp.setText(sTranslateable.value);
                         }
                     }
-                        // else if ( cmp.xtype == "mgrid" && translateable.pName == "toolTipHint" ){
-                        //	Ext.get(cmp.id + '-help-toolEl' ).set({"data-qtip": sTranslateable.value});
+                    // else if ( cmp.xtype == "mgrid" && translateable.pName == "toolTipHint" ){
+                    //	Ext.get(cmp.id + '-help-toolEl' ).set({"data-qtip": sTranslateable.value});
                     // } 
                     else if (cmp.xtype == "mcombo" && (translateable.pName.indexOf('cmb-') == 0)) {
                         var val = cmp.getValue();
@@ -15056,18 +15056,18 @@ Ext.define('UGRFrontend.desktop.view.GTDesktopView', {
                                 key: 'applicationModuleName',
                                 value: data.applicationModuleName
                             },
-                                {
-                                    key: 'userShortcutTitle',
-                                    value: data.userShortcutTitle
-                                },
-                                {
-                                    key: 'userShortcutPosX',
-                                    value: width
-                                },
-                                {
-                                    key: 'userShortcutPosY',
-                                    value: height
-                                }
+                            {
+                                key: 'userShortcutTitle',
+                                value: data.userShortcutTitle
+                            },
+                            {
+                                key: 'userShortcutPosX',
+                                value: width
+                            },
+                            {
+                                key: 'userShortcutPosY',
+                                value: height
+                            }
                             ],
                             onSuccess: function (msg) {
                                 if (msg.rows.length > 0) {

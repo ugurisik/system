@@ -306,6 +306,25 @@ public class WSUpdateCore {
         }
     }
 
+    public static boolean pumpToSession(String sessionId, WSUpdateCore.Payload p) {
+        boolean sended = false;
+        for (WSUpdateCore.Channel c : channels) {
+            for (WSUpdateCore.Subscriber s : c.getSubscribers()) {
+                if (s.sessionContext.getSessionID().equals(sessionId)) {
+                    p.origin.channel = c.name;
+                    c.pump(p);
+                    sended = true;
+                    break;
+                }
+            }
+        }
+        return sended;
+    }
+
+    public static boolean sendToSession(WSUpdateCore.Payload p){
+        String currentSessionId = SessionCore.getCurrentContext().getSessionID();
+        return pumpToSession(currentSessionId, p);
+    }
 
 
 
